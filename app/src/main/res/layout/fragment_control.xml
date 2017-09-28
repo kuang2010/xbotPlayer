@@ -1,0 +1,101 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical"
+    android:padding="16dp"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:focusable="true"
+    android:focusableInTouchMode="true">
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Ros服务器IP地址:"/>
+
+    <EditText
+        android:id="@+id/et_ros_ip"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="192.168.0.135"/>
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="速度:"/>
+
+    <EditText
+        android:id="@+id/et_speed"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="0.3"/>
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="连接状态:"/>
+
+    <TextView
+        android:id="@+id/et_state"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textSize="20sp"
+        android:textColor="@android:color/holo_red_light"
+        android:text="未连接"/>
+
+    <!--<include-->
+        <!--android:id="@+id/control_box"-->
+        <!--layout="@layout/layout_control" />-->
+    <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical">
+
+        <ImageButton
+            android:id="@+id/image_button_up"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerHorizontal="true"
+            android:src="@drawable/ic_arrow_up_128dp"
+            android:background="@drawable/press"
+            />
+
+        <ImageButton
+            android:id="@+id/image_button_rotate_right"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_toRightOf="@id/image_button_up"
+            android:layout_below="@id/image_button_up"
+            android:src="@drawable/ic_rotate_right_128dp"
+            android:background="@drawable/press"
+            />
+
+        <ImageButton
+            android:id="@+id/image_button_stop"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerHorizontal="true"
+            android:layout_below="@id/image_button_up"
+            android:src="@drawable/ic_pause_128dp"
+            android:background="@drawable/press"
+            />
+
+        <ImageButton
+            android:id="@+id/image_button_down"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerHorizontal="true"
+            android:layout_below="@id/image_button_stop"
+            android:src="@drawable/ic_arrow_down_128dp"
+            android:background="@drawable/press"
+            />
+        <ImageButton
+            android:id="@+id/image_button_rotate_left"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_toLeftOf="@id/image_button_stop"
+            android:layout_below="@id/image_button_up"
+            android:src="@drawable/ic_rotate_left_128dp"
+            android:background="@drawable/press"
+            />
+    </RelativeLayout>
+</LinearLayout>
