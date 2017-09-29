@@ -1,117 +1,70 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:orientation="vertical"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+
     android:padding="16dp"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:focusable="true"
-    android:focusableInTouchMode="true"
+
     xmlns:app="http://schemas.android.com/apk/res-auto">
 
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Ros服务器IP地址:"/>
-
-    <EditText
-        android:id="@+id/et_ros_ip"
+    <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="192.168.0.135"/>
-
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="速度:"/>
-
-    <EditText
-        android:id="@+id/et_speed"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="0.3"/>
-
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="连接状态:"/>
-
-    <TextView
-        android:id="@+id/et_state"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:textSize="20sp"
-        android:textColor="@android:color/holo_red_light"
-        android:text="未连接"/>
-
-
-    <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-        android:id="@+id/relative_layout"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:orientation="vertical"
-        >
-
-        <ImageButton
-            android:id="@+id/image_button_up"
+        android:focusable="true"
+        android:focusableInTouchMode="true"
+        android:orientation="vertical">
+        <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_centerHorizontal="true"
-            android:src="@drawable/ic_arrow_up_128dp"
-            android:background="@drawable/press"
-            />
+            android:textSize="20sp"
+            android:text="Ros服务器IP地址:"/>
 
-        <ImageButton
-            android:id="@+id/image_button_rotate_right"
-            android:layout_width="wrap_content"
+        <EditText
+            android:id="@+id/et_ros_ip"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_toRightOf="@id/image_button_up"
-            android:layout_below="@id/image_button_up"
-            android:src="@drawable/ic_rotate_right_128dp"
-            android:background="@drawable/press"
-            />
+            android:text="192.168.0.135"/>
 
-        <ImageButton
-            android:id="@+id/image_button_stop"
+        <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_centerHorizontal="true"
-            android:layout_below="@id/image_button_up"
-            android:src="@drawable/ic_pause_128dp"
-            android:background="@drawable/press"
-            />
+            android:textSize="20sp"
+            android:text="速度:"/>
 
-        <ImageButton
-            android:id="@+id/image_button_down"
+        <EditText
+            android:id="@+id/et_speed"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="0.3"/>
+
+        <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_centerHorizontal="true"
-            android:layout_below="@id/image_button_stop"
-            android:src="@drawable/ic_arrow_down_128dp"
-            android:background="@drawable/press"
-            />
-        <ImageButton
-            android:id="@+id/image_button_rotate_left"
+            android:textSize="20sp"
+            android:text="连接状态:"/>
+
+        <TextView
+            android:id="@+id/et_state"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_toLeftOf="@id/image_button_stop"
-            android:layout_below="@id/image_button_up"
-            android:src="@drawable/ic_rotate_left_128dp"
-            android:background="@drawable/press"
-            />
+            android:textSize="20sp"
+            android:textColor="@android:color/holo_red_light"
+            android:text="未连接"/>
+    </LinearLayout>
+
 
         <cn.iscas.xlab.xbotplayer.RockerView
             android:id="@+id/rocker_view"
             android:layout_width="180dp"
             android:layout_height="180dp"
-            android:layout_below="@id/image_button_down"
-            android:layout_centerVertical="true"
+            android:layout_marginLeft="25dp"
+            android:layout_marginBottom="50dp"
+            android:layout_alignParentBottom="true"
+            android:layout_alignParentLeft="true"
             app:areaBackground="@drawable/default_background"
             app:rockerBackground="@drawable/default_rocker"
             app:rockerRadius="30dp"
             />
-    </RelativeLayout>
-    
 
 
-
-</LinearLayout>
+</RelativeLayout>
