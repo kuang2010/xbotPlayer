@@ -28,6 +28,7 @@ import de.greenrobot.event.EventBus;
 public class RosConnectionService extends Service{
 
     public static final String TAG = "RosConnectionService";
+    private static final String PUBLISH_TOPIC_CONTROL_COMMAND = "/cmd_vel_mux/input/teleop";
 
     public Binder proxy = new ServiceBinder();
     private ROSBridgeClient rosBridgeClient;
@@ -60,7 +61,7 @@ public class RosConnectionService extends Service{
                     jsonArray.put(angularMsg);
 
                     body.put("op", "publish");
-                    body.put("topic", "/cmd_vel_mux/input/teleop");
+                    body.put("topic", PUBLISH_TOPIC_CONTROL_COMMAND);
 
                     JSONObject message = new JSONObject();
                     message.put("angular", angularMsg);

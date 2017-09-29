@@ -24,6 +24,8 @@ import java.util.TimerTask;
 
 import cn.iscas.xlab.xbotplayer.Config;
 import cn.iscas.xlab.xbotplayer.R;
+import cn.iscas.xlab.xbotplayer.RegexCheckUtil;
+import cn.iscas.xlab.xbotplayer.RockerView;
 import cn.iscas.xlab.xbotplayer.RosConnectionService;
 import cn.iscas.xlab.xbotplayer.Twist;
 
@@ -35,11 +37,10 @@ import static cn.iscas.xlab.xbotplayer.mvp.ControlContract.ROS_RECEIVER_INTENTFI
  * Created by lisongting on 2017/9/27.
  */
 
-public class ControlFragment extends Fragment implements ControlContract.View{
+public class ControlFragment extends Fragment implements ControlContract.View,View.OnTouchListener{
 
 
-
-    private RosConnectionService.ServiceBinder serviceProxy;
+    public static final String TAG = "ControlFragment";
 
     private RosConnectionReceiver receiver;
     private ControlContract.Presenter presenter;
@@ -55,10 +56,31 @@ public class ControlFragment extends Fragment implements ControlContract.View{
     private ImageButton bt_rotate_left;
     private ImageButton bt_rotate_right;
     private ImageButton bt_stop;
-    private volatile boolean isControling = false;
+    private volatile boolean isControlling = false;
+    private RockerView rockerView;
+    private volatile Twist rockerTwist;
 
     public ControlFragment() {
+        rockerTwist = new Twist();
+    }
 
+    @Override
+    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+        View view = inflater.inflate(R.layout.fragment_control, container, false);
+        ipEditText = (EditText) view.findViewById(R.id.et_ros_ip);
+        speedEditText = (EditText) view.findViewById(R.id.et_speed);
+        connectionState = (TextView) view.findViewById(R.id.et_state);
+        rockerView = (RockerView) view.findViewById(R.id.rocker_view);
+
+        bt_up = (ImageButton) view.findViewById(R.id.image_button_up);
+        bt_down = (ImageButton) view.findViewById(R.id.image_button_down);
+        bt_stop= (ImageButton) view.findViewById(R.id.image_button_stop);
+        bt_rotate_left= (ImageButton) view.findViewById(R.id.image_button_rotate_left);
+        bt_rotate_right = (ImageButton) view.findViewById(R.id.image_button_rotate_right);
+        
+
+        initView();
+        return view;
     }
 
     @Override
@@ -68,7 +90,7 @@ public class ControlFragment extends Fragment implements ControlContract.View{
         ipEditText.addTextChangedListener(new TextWatcher() {
             @Override
             public void beforeTextChanged(CharSequence s, int start, int count, int after) {
-                
+
             }
 
             @Override
@@ -78,116 +100,63 @@ public class ControlFragment extends Fragment implements ControlContract.View{
 
             @Override
             public void afterTextChanged(Editable s) {
-                Config.ROS_SERVER_IP = s.toString();
-            }
-        });
-
-    }
-
-    @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        View view = inflater.inflate(R.layout.fragment_control, container, false);
-        ipEditText = (EditText) view.findViewById(R.id.et_ros_ip);
-        speedEditText = (EditText) view.findViewById(R.id.et_speed);
-        connectionState = (TextView) view.findViewById(R.id.et_state);
-
-        bt_up = (ImageButton) view.findViewById(R.id.image_button_up);
-        bt_down = (ImageButton) view.findViewById(R.id.image_button_down);
-        bt_stop= (ImageButton) view.findViewById(R.id.image_button_stop);
-        bt_rotate_left= (ImageButton) view.findViewById(R.id.image_button_rotate_left);
-        bt_rotate_right = (ImageButton) view.findViewById(R.id.image_button_rotate_right);
-
-        bt_up.setOnTouchListener(new View.OnTouchListener() {
-            @Override
-            public boolean onTouch(View v, MotionEvent event) {
-                switch (event.getAction()) {
-                    case MotionEvent.ACTION_DOWN:
-                        speed = Float.parseFloat(speedEditText.getEditableText().toString());
-                        Twist twist = new Twist(speed, 0F, 0F, 0F, 0F, 0F);
-//                        presenter.publishCommand(twist);
-                        startTimerTask(twist,200);
-                        isControling = true;
-                        break;
-                    case MotionEvent.ACTION_UP:
-                        cancelTimerTask();
-                        isControling = false;
-                        break;
+                if (RegexCheckUtil.isRightIP(s.toString())) {
+                    Config.ROS_SERVER_IP = s.toString();
                 }
-                return true;
             }
         });
 
-        bt_down.setOnTouchListener(new View.OnTouchListener() {
+        bt_up.setOnTouchListener(this);
+        bt_down.setOnTouchListener(this);
+        bt_rotate_left.setOnTouchListener(this);
+        bt_rotate_right.setOnTouchListener(this);
+        bt_stop.setOnTouchListener(this);
+
+
+        rockerView.setOnDirectionChangeListener(new RockerView.OnDirectionChangeListener() {
             @Override
-            public boolean onTouch(View v, MotionEvent event) {
-                switch (event.getAction()) {
-                    case MotionEvent.ACTION_DOWN:
-                        speed = Float.parseFloat(speedEditText.getEditableText().toString());
-                        Twist twist = new Twist(-speed, 0F, 0F, 0F, 0F, 0F);
-//                        presenter.publishCommand(twist);
-                        startTimerTask(twist,200);
-                        isControling = true;
-                        break;
-                    case MotionEvent.ACTION_UP:
-                        cancelTimerTask();
-                        isControling = false;
-                        break;
-                }
-                return true;
+            public void onStart() {
+                startTwistPublisher();
             }
-        });
 
-
-        bt_stop.setOnClickListener(new View.OnClickListener() {
             @Override
-            public void onClick(View v) {
+            public void onDirectionChange(RockerView.Direction direction) {
+                Log.i(TAG, "当前的摇杆方向：" + direction.name());
                 speed = Float.parseFloat(speedEditText.getEditableText().toString());
-                Twist twist = new Twist(0F, 0F, 0F, 0F, 0F, 0F);
-                presenter.publishCommand(twist);
+                switch (direction) {
+                    case DIRECTION_UP:
+                        rockerTwist = new Twist(speed, 0F, 0F, 0F, 0F, 0F);
+                        break;
+                    case DIRECTION_DOWN:
+                        rockerTwist = new Twist(-speed, 0F, 0F, 0F, 0F, 0F);
+                        break;
+                    case DIRECTION_LEFT:
+                    case DIRECTION_UP_LEFT:
+                        rockerTwist = new Twist(speed, 0F, 0F, 0F, 0F, speed*3F);
+                        break;
+                    case DIRECTION_RIGHT:
+                    case DIRECTION_UP_RIGHT:
+                        rockerTwist = new Twist(speed, 0F, 0F, 0F, 0F, -speed*3F);
+                        break;
+                    case DIRECTION_DOWN_LEFT:
+                        rockerTwist = new Twist(-speed, 0F, 0F, 0F, 0F, -speed*3F);
+                        break;
+                    case DIRECTION_DOWN_RIGHT:
+                        rockerTwist = new Twist(-speed, 0F, 0F, 0F, 0F, speed*3F);
+                        break;
+                    default:
+                        break;
+                }
+            }
+
+            @Override
+            public void onFinish() {
+                rockerTwist = new Twist(0F, 0F, 0F, 0F, 0F, 0F);
+                presenter.publishCommand(rockerTwist);
+                cancelTimerTask();
             }
         });
 
-       bt_rotate_left.setOnTouchListener(new View.OnTouchListener() {
-            @Override
-            public boolean onTouch(View v, MotionEvent event) {
-                switch (event.getAction()) {
-                    case MotionEvent.ACTION_DOWN:
-                        speed = Float.parseFloat(speedEditText.getEditableText().toString());
-                        Twist twist = new Twist(0F, 0F, 0F, 0F, 0F, speed*3F);
-//                        presenter.publishCommand(twist);
-                        startTimerTask(twist,600);
-                        isControling = true;
-                        break;
-                    case MotionEvent.ACTION_UP:
-                        cancelTimerTask();
-                        isControling = false;
-                        break;
-                }
-                return true;
-            }
-        });
-        bt_rotate_right.setOnTouchListener(new View.OnTouchListener() {
-            @Override
-            public boolean onTouch(View v, MotionEvent event) {
-                switch (event.getAction()) {
-                    case MotionEvent.ACTION_DOWN:
-                        speed = Float.parseFloat(speedEditText.getEditableText().toString());
-                        Twist twist = new Twist(0F, 0F, 0F, 0F, 0F, -speed*3F);
-//                        presenter.publishCommand(twist);
-                        startTimerTask(twist,600);
-                        isControling = true;
-                        break;
-                    case MotionEvent.ACTION_UP:
-                        cancelTimerTask();
-                        isControling = false;
-                        break;
-                }
-                return true;
-            }
-        });
-
-        initView();
-        return view;
     }
 
     @Override
@@ -200,6 +169,45 @@ public class ControlFragment extends Fragment implements ControlContract.View{
         
     }
 
+    @Override
+    public boolean onTouch(View v, MotionEvent event) {
+        speed = Float.parseFloat(speedEditText.getEditableText().toString());
+        Twist twist;
+        if (event.getAction() == MotionEvent.ACTION_DOWN) {
+            switch (v.getId()) {
+                case R.id.image_button_up:
+                    twist = new Twist(speed, 0F, 0F, 0F, 0F, 0F);
+                    startTimerTask(twist,200);
+                    break;
+                case R.id.image_button_down:
+                    twist = new Twist(-speed, 0F, 0F, 0F, 0F, 0F);
+                    startTimerTask(twist,200);
+                    break;
+                case R.id.image_button_rotate_left:
+                    twist = new Twist(0F, 0F, 0F, 0F, 0F, speed*3F);
+                    startTimerTask(twist,600);
+                    break;
+                case R.id.image_button_rotate_right:
+                    twist = new Twist(0F, 0F, 0F, 0F, 0F, -speed*3F);
+                    startTimerTask(twist,600);
+                    break;
+                case R.id.image_button_stop:
+                    twist = new Twist(0F, 0F, 0F, 0F, 0F, 0F);
+                    startTimerTask(twist,200);
+                    break;
+                default:
+                    break;
+
+            }
+            isControlling = true;
+
+        } else if (event.getAction() == MotionEvent.ACTION_UP) {
+            cancelTimerTask();
+            isControlling = false;
+        }
+
+        return false;
+    }
     private void initBroadcastReceiver() {
         receiver = new RosConnectionReceiver(new RosConnectionReceiver.RosCallback() {
             @Override
@@ -227,6 +235,12 @@ public class ControlFragment extends Fragment implements ControlContract.View{
 
     }
 
+    @Override
+    public void onStop() {
+        super.onStop();
+        getActivity().unregisterReceiver(receiver);
+    }
+
     public void setServicePresenter(RosConnectionService.ServiceBinder service) {
         presenter.setServiceProxy(service);
     }
@@ -237,24 +251,38 @@ public class ControlFragment extends Fragment implements ControlContract.View{
     }
 
 
+    public synchronized void startTwistPublisher() {
+        timer = new Timer();
+        timer.schedule(new TimerTask() {
+            @Override
+            public void run() {
+                presenter.publishCommand(rockerTwist);
+            }
+        },0,200);
+    }
+
+
     public synchronized  void  startTimerTask(final Twist twist,int frequency) {
-        if (isControling) {
+        if (isControlling) {
             return;
         }
         timer = new Timer();
         timer.schedule(new TimerTask() {
             @Override
             public void run() {
-                Log.v("ControlFragment", "Publish Task is running ");
+                Log.v(TAG, "Publish Task is running ");
                 presenter.publishCommand(twist);
             }
         },0,frequency);
     }
 
     public synchronized void cancelTimerTask() {
+
         timer.cancel();
-        Log.v("ControlFragment", "TimerTask is killed ");
+        Log.v(TAG, "TimerTask is killed ");
     }
+
+
 
     public static class RosConnectionReceiver extends BroadcastReceiver {
 

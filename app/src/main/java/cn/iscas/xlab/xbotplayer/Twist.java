@@ -17,6 +17,14 @@ public class Twist {
     private float angular_y;
     private float angular_z;
 
+    public Twist() {
+        this.linear_x = 0.0F;
+        this.linear_y = 0.0F;
+        this.linear_z = 0.0F;
+        this.angular_x =0.0F;
+        this.angular_y =0.0F;
+        this.angular_z =0.0F;
+    }
     public Twist(float linear_x, float linear_y, float linear_z, float angular_x, float angular_y, float angular_z) {
         this.linear_x = linear_x;
         this.linear_y = linear_y;

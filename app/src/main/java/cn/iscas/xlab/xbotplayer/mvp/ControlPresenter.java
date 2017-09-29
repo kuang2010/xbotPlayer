@@ -2,7 +2,6 @@ package cn.iscas.xlab.xbotplayer.mvp;
 
 import android.content.Context;
 import android.os.Binder;
-import android.support.annotation.NonNull;
 
 import cn.iscas.xlab.xbotplayer.RosConnectionService;
 import cn.iscas.xlab.xbotplayer.Twist;
@@ -29,11 +28,13 @@ public class ControlPresenter implements  ControlContract.Presenter{
 
     @Override
     public void publishCommand(Twist twist) {
-        serviceProxy.publishCommand(twist);
+        if (serviceProxy != null) {
+            serviceProxy.publishCommand(twist);
+        }
     }
 
     @Override
-    public void setServiceProxy(@NonNull Binder binder) {
+    public void setServiceProxy( Binder binder) {
         serviceProxy = (RosConnectionService.ServiceBinder) binder;
     }
 }

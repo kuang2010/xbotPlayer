@@ -5,7 +5,8 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:focusable="true"
-    android:focusableInTouchMode="true">
+    android:focusableInTouchMode="true"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
 
     <TextView
         android:layout_width="wrap_content"
@@ -42,13 +43,13 @@
         android:textColor="@android:color/holo_red_light"
         android:text="未连接"/>
 
-    <!--<include-->
-        <!--android:id="@+id/control_box"-->
-        <!--layout="@layout/layout_control" />-->
+
     <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+        android:id="@+id/relative_layout"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:orientation="vertical">
+        android:orientation="vertical"
+        >
 
         <ImageButton
             android:id="@+id/image_button_up"
@@ -97,5 +98,20 @@
             android:src="@drawable/ic_rotate_left_128dp"
             android:background="@drawable/press"
             />
+
+        <cn.iscas.xlab.xbotplayer.RockerView
+            android:id="@+id/rocker_view"
+            android:layout_width="180dp"
+            android:layout_height="180dp"
+            android:layout_below="@id/image_button_down"
+            android:layout_centerVertical="true"
+            app:areaBackground="@drawable/default_background"
+            app:rockerBackground="@drawable/default_rocker"
+            app:rockerRadius="30dp"
+            />
     </RelativeLayout>
+    
+
+
+
 </LinearLayout>
