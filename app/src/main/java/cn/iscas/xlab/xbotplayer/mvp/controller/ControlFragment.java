@@ -35,6 +35,7 @@ import android.widget.Toast;
 import java.util.Timer;
 import java.util.TimerTask;
 
+import cn.iscas.xlab.xbotplayer.App;
 import cn.iscas.xlab.xbotplayer.Config;
 import cn.iscas.xlab.xbotplayer.R;
 import cn.iscas.xlab.xbotplayer.RegexCheckUtil;
@@ -66,10 +67,12 @@ public class ControlFragment extends Fragment implements ControlContract.View{
 
     public ControlFragment() {
         rockerTwist = new Twist();
+
     }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+        log("onCreateView()");
         View view = inflater.inflate(R.layout.fragment_control, container, false);
         ipEditText = (EditText) view.findViewById(R.id.et_ros_ip);
         speedEditText = (EditText) view.findViewById(R.id.et_speed);
@@ -111,7 +114,7 @@ public class ControlFragment extends Fragment implements ControlContract.View{
 
             @Override
             public void onDirectionChange(RockerView.Direction direction) {
-                Log.i(TAG, "当前的摇杆方向：" + direction.name());
+//                log("当前的摇杆方向：" + direction.name());
                 speed = Float.parseFloat(speedEditText.getEditableText().toString());
                 switch (direction) {
                     case DIRECTION_UP:
@@ -156,8 +159,13 @@ public class ControlFragment extends Fragment implements ControlContract.View{
     @Override
     public void onStart() {
         super.onStart();
+        log("onStart()");
         presenter = new ControlPresenter(getContext(),this);
         presenter.start();
+
+        App app = (App) getActivity().getApplication();
+        presenter.setServiceProxy(app.getRosServiceProxy());
+
 
         initBroadcastReceiver();
         
@@ -193,6 +201,7 @@ public class ControlFragment extends Fragment implements ControlContract.View{
     @Override
     public void onStop() {
         super.onStop();
+        log("onStop()");
         getActivity().unregisterReceiver(receiver);
     }
 
@@ -217,12 +226,13 @@ public class ControlFragment extends Fragment implements ControlContract.View{
     }
 
     public synchronized void cancelTimerTask() {
-
         timer.cancel();
-        Log.v(TAG, "TimerTask is killed ");
+        log("TimerTask is killed ");
     }
 
-
+    private void log(String s) {
+        Log.i(TAG, TAG + " -- " + s);
+    }
 
     public static class RosConnectionReceiver extends BroadcastReceiver {
 
