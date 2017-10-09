@@ -33,7 +33,7 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.nio.channels.SocketChannel;
 
-import cn.iscas.xlab.xbotplayer.PublishEvent;
+import cn.iscas.xlab.xbotplayer.entity.PublishEvent;
 import cn.iscas.xlab.xbotplayer.ros.ROSClient;
 import cn.iscas.xlab.xbotplayer.ros.message.Message;
 import cn.iscas.xlab.xbotplayer.ros.rosbridge.FullMessageHandler;

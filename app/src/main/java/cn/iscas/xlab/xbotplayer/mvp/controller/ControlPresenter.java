@@ -13,13 +13,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package cn.iscas.xlab.xbotplayer.mvp;
+package cn.iscas.xlab.xbotplayer.mvp.controller;
 
 import android.content.Context;
 import android.os.Binder;
 
 import cn.iscas.xlab.xbotplayer.RosConnectionService;
-import cn.iscas.xlab.xbotplayer.Twist;
+import cn.iscas.xlab.xbotplayer.entity.Twist;
 
 /**
  * Created by lisongting on 2017/9/27.

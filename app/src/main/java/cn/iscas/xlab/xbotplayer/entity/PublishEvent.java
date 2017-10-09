@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package cn.iscas.xlab.xbotplayer;
+package cn.iscas.xlab.xbotplayer.entity;
 
 
 import cn.iscas.xlab.xbotplayer.ros.rosbridge.operation.Operation;

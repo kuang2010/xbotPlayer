@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package cn.iscas.xlab.xbotplayer.mvp;
+package cn.iscas.xlab.xbotplayer.mvp.controller;
 
 import android.content.BroadcastReceiver;
 import android.content.Context;
@@ -40,11 +40,7 @@ import cn.iscas.xlab.xbotplayer.R;
 import cn.iscas.xlab.xbotplayer.RegexCheckUtil;
 import cn.iscas.xlab.xbotplayer.RockerView;
 import cn.iscas.xlab.xbotplayer.RosConnectionService;
-import cn.iscas.xlab.xbotplayer.Twist;
-
-import static cn.iscas.xlab.xbotplayer.mvp.ControlContract.CONN_ROS_SERVER_ERROR;
-import static cn.iscas.xlab.xbotplayer.mvp.ControlContract.CONN_ROS_SERVER_SUCCESS;
-import static cn.iscas.xlab.xbotplayer.mvp.ControlContract.ROS_RECEIVER_INTENTFILTER;
+import cn.iscas.xlab.xbotplayer.entity.Twist;
 
 /**
  * Created by lisongting on 2017/9/27.
@@ -189,7 +185,7 @@ public class ControlFragment extends Fragment implements ControlContract.View{
             }
         });
 
-        IntentFilter filter = new IntentFilter(ROS_RECEIVER_INTENTFILTER);
+        IntentFilter filter = new IntentFilter(ControlContract.ROS_RECEIVER_INTENTFILTER);
         getActivity().registerReceiver(receiver,filter);
 
     }
@@ -245,10 +241,10 @@ public class ControlFragment extends Fragment implements ControlContract.View{
         public void onReceive(Context context, Intent intent) {
             Bundle data = intent.getExtras();
             switch (data.getInt("ros_conn_status")) {
-                case CONN_ROS_SERVER_SUCCESS:
+                case ControlContract.CONN_ROS_SERVER_SUCCESS:
                     rosCallback.onSuccess();
                     break;
-                case CONN_ROS_SERVER_ERROR:
+                case ControlContract.CONN_ROS_SERVER_ERROR:
                     rosCallback.onFailure();
                     break;
                 default:

@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package cn.iscas.xlab.xbotplayer.mvp;
+package cn.iscas.xlab.xbotplayer.mvp.controller;
 
 import android.content.ComponentName;
 import android.content.Intent;

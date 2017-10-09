@@ -30,7 +30,9 @@ import org.json.JSONObject;
 import java.util.Timer;
 import java.util.TimerTask;
 
-import cn.iscas.xlab.xbotplayer.mvp.ControlContract;
+import cn.iscas.xlab.xbotplayer.entity.PublishEvent;
+import cn.iscas.xlab.xbotplayer.entity.Twist;
+import cn.iscas.xlab.xbotplayer.mvp.controller.ControlContract;
 import cn.iscas.xlab.xbotplayer.ros.ROSClient;
 import cn.iscas.xlab.xbotplayer.ros.rosbridge.ROSBridgeClient;
 import de.greenrobot.event.EventBus;

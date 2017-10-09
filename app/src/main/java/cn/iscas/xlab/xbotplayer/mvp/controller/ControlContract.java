@@ -13,12 +13,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package cn.iscas.xlab.xbotplayer.mvp;
+package cn.iscas.xlab.xbotplayer.mvp.controller;
 
 import android.os.Binder;
 import android.support.annotation.NonNull;
 
-import cn.iscas.xlab.xbotplayer.Twist;
+import cn.iscas.xlab.xbotplayer.entity.Twist;
+import cn.iscas.xlab.xbotplayer.mvp.BasePresenter;
+import cn.iscas.xlab.xbotplayer.mvp.BaseView;
 
 /**
  * Created by lisongting on 2017/9/27.
@@ -30,13 +32,13 @@ public class ControlContract {
     public static final String ROS_RECEIVER_INTENTFILTER = "xbotplayer.rosconnection.receiver";
 
 
-    interface Presenter extends BasePresenter{
+    interface Presenter extends BasePresenter {
         void publishCommand(Twist twist);
 
         void setServiceProxy(@NonNull Binder binder);
     }
 
-    interface View extends BaseView<Presenter>{
+    interface View extends BaseView<Presenter> {
 
 
     }
