@@ -21,6 +21,8 @@ package cn.iscas.xlab.xbotplayer;
 
 public class Config {
 
+    public static boolean isRosServerConnected = false;
+
     public static String ROS_SERVER_IP = "192.168.0.135";
 
     public static String ROS_SERVER_PORT = "9090";

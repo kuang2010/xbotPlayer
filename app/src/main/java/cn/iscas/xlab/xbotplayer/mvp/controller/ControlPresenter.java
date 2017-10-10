@@ -17,6 +17,7 @@ package cn.iscas.xlab.xbotplayer.mvp.controller;
 
 import android.content.Context;
 import android.os.Binder;
+import android.util.Log;
 
 import cn.iscas.xlab.xbotplayer.RosConnectionService;
 import cn.iscas.xlab.xbotplayer.entity.Twist;
@@ -45,6 +46,8 @@ public class ControlPresenter implements  ControlContract.Presenter{
     public void publishCommand(Twist twist) {
         if (serviceProxy != null) {
             serviceProxy.publishCommand(twist);
+        }else {
+            Log.e("ControlPresenter", "RosConnectionService is null");
         }
     }
 

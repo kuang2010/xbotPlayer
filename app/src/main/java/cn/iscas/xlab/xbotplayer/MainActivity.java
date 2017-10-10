@@ -15,7 +15,9 @@
  */
 package cn.iscas.xlab.xbotplayer;
 
+import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.design.widget.BottomNavigationView;
@@ -23,9 +25,13 @@ import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentPagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
+import android.util.Log;
+import android.view.KeyEvent;
 import android.view.MenuItem;
+import android.widget.Toast;
 
 import cn.iscas.xlab.xbotplayer.mvp.controller.ControlFragment;
+import cn.iscas.xlab.xbotplayer.mvp.rvizmap.MapFragment;
 
 /**
  * Created by lisongting on 2017/10/9.
@@ -39,23 +45,30 @@ public class MainActivity extends AppCompatActivity {
 
     private FragmentPagerAdapter fragmentPagerAdapter;
 
-
+    private ControlFragment controlFragment;
+    private MapFragment mapFragment;
+    private long lastExitTime;
     @Override
+
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         viewPager = (ViewPager) findViewById(R.id.view_pager);
         bottomNavigationView = (BottomNavigationView) findViewById(R.id.bottom_navigation);
 
+        controlFragment = new ControlFragment();
+        mapFragment = new MapFragment();
+
         fragmentPagerAdapter = new FragmentPagerAdapter(getSupportFragmentManager()) {
             @Override
             public Fragment getItem(int position) {
                 if (position == 0) {
-                    return new ControlFragment();
+
+                    return controlFragment;
                 } else if (position == 1) {
-                    return new ControlFragment();
+                    return mapFragment;
                 }
-                return  new ControlFragment();
+                return SimpleFragment.getInstance("临时页面");
             }
 
             @Override
@@ -70,6 +83,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void initListeners() {
+
         viewPager.addOnPageChangeListener(new ViewPager.OnPageChangeListener() {
             @Override
             public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {
@@ -80,9 +94,15 @@ public class MainActivity extends AppCompatActivity {
             public void onPageSelected(int position) {
                 switch (position) {
                     case 0:
+                        getSupportFragmentManager().beginTransaction()
+                                .hide(mapFragment)
+                                .commit();
                         bottomNavigationView.setSelectedItemId(R.id.controller);
                         break;
                     case 1:
+                        getSupportFragmentManager().beginTransaction()
+                                .show(mapFragment)
+                                .commit();
                         bottomNavigationView.setSelectedItemId(R.id.map);
                         break;
                     case 2:
@@ -92,12 +112,13 @@ public class MainActivity extends AppCompatActivity {
                         break;
                 }
             }
+
             @Override
             public void onPageScrollStateChanged(int state) {
 
             }
         });
-
+//        viewPager.requestDisallowInterceptTouchEvent(false);
         bottomNavigationView.setOnNavigationItemSelectedListener(new BottomNavigationView.OnNavigationItemSelectedListener() {
             @Override
             public boolean onNavigationItemSelected(@NonNull MenuItem item) {
@@ -118,5 +139,26 @@ public class MainActivity extends AppCompatActivity {
             }
         });
     }
+
+    @Override
+    public boolean onKeyDown(int keyCode, KeyEvent event) {
+        if (keyCode == KeyEvent.KEYCODE_BACK && event.getAction() == event.ACTION_DOWN) {
+            if (System.currentTimeMillis() - lastExitTime < 2000) {
+                finish();
+            }else{
+                Toast.makeText(this, "再按一次返回键退出程序", Toast.LENGTH_SHORT).show();
+                lastExitTime = System.currentTimeMillis();
+            }
+            return true;
+        }
+        return super.onKeyDown(keyCode, event);
+    }
+
+    @Override
+    protected void onDestroy() {
+        Log.i("MainActivity", "onDestroy()");
+        super.onDestroy();
+    }
+
 
 }

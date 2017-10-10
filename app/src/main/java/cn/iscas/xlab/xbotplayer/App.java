@@ -19,9 +19,7 @@ import android.app.Application;
 import android.content.ComponentName;
 import android.content.Intent;
 import android.content.ServiceConnection;
-import android.content.SharedPreferences;
 import android.os.IBinder;
-import android.preference.PreferenceManager;
 import android.util.Log;
 
 /**
@@ -34,26 +32,23 @@ public class App extends Application {
 
     public ServiceConnection mServiceConnection;
     private RosConnectionService.ServiceBinder mServiceProxy;
-    SharedPreferences.Editor editor;
 
     @Override
     public void onCreate() {
         super.onCreate();
         log("onCreate()");
-        editor =  PreferenceManager.getDefaultSharedPreferences(this).edit();
-        editor.putBoolean(Constant.SP_KEY_ROS_CONNECTION, false);
 
         mServiceConnection = new ServiceConnection() {
             @Override
             public void onServiceConnected(ComponentName name, IBinder service) {
                 log("onServiceConnected()");
                 mServiceProxy = (RosConnectionService.ServiceBinder) service;
-                editor.putBoolean(Constant.SP_KEY_ROS_CONNECTION, true);
+                Config.isRosServerConnected = true;
             }
 
             @Override
             public void onServiceDisconnected(ComponentName name) {
-                editor.putBoolean(Constant.SP_KEY_ROS_CONNECTION, false);
+                Config.isRosServerConnected = false;
                 log("onServiceDisconnected()");
             }
         };
@@ -63,6 +58,9 @@ public class App extends Application {
     }
 
     public RosConnectionService.ServiceBinder getRosServiceProxy(){
+        if (mServiceProxy == null) {
+            Log.e("App", "mServiceProxy is null");
+        }
         return mServiceProxy;
     }
 
@@ -70,10 +68,10 @@ public class App extends Application {
     public void onTerminate(){
         log("onTerminate()");
         unbindService(mServiceConnection);
-
         super.onTerminate();
 
     }
+
 
     private void log(String s) {
         Log.i(TAG,TAG+" -- "+ s);

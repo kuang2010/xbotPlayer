@@ -48,7 +48,8 @@ public class ROSBridgeWebSocketClient extends WebSocketClient {
     private Registry<FullMessageHandler> handlers;
     private boolean debug;
     private ROSClient.ConnectionStatusListener listener;
-    
+    private long lastMessageEventTime;
+
     ROSBridgeWebSocketClient(URI serverURI) {
         super(serverURI);
         classes = new Registry<Class>();
@@ -81,6 +82,9 @@ public class ROSBridgeWebSocketClient extends WebSocketClient {
 
     @Override
     public void onMessage(String message) {
+        if (System.currentTimeMillis() - lastMessageEventTime < 1000) {
+            return;
+        }
         if (debug) System.out.println("<ROS " + message);
         //System.out.println("ROSBridgeWebSocketClient.onMessage (message): " + message);
         Operation operation = Operation.toOperation(message, classes);
@@ -136,6 +140,7 @@ public class ROSBridgeWebSocketClient extends WebSocketClient {
                 System.out.println("Service Response " + serviceResponse.service);
             }
         }
+        lastMessageEventTime = System.currentTimeMillis();
     }
        
     @Override

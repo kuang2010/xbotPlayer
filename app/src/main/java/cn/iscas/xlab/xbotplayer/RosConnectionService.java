@@ -30,6 +30,7 @@ import org.json.JSONObject;
 import java.util.Timer;
 import java.util.TimerTask;
 
+import cn.iscas.xlab.xbotplayer.entity.MapInfo;
 import cn.iscas.xlab.xbotplayer.entity.PublishEvent;
 import cn.iscas.xlab.xbotplayer.entity.Twist;
 import cn.iscas.xlab.xbotplayer.mvp.controller.ControlContract;
@@ -45,7 +46,7 @@ import de.greenrobot.event.EventBus;
 public class RosConnectionService extends Service{
 
     public static final String TAG = "RosConnectionService";
-    private static final String PUBLISH_TOPIC_CONTROL_COMMAND = "/cmd_vel_mux/input/teleop";
+
 
     public Binder proxy = new ServiceBinder();
     private ROSBridgeClient rosBridgeClient;
@@ -54,6 +55,10 @@ public class RosConnectionService extends Service{
     private Timer rosConnectionTimer;
     private TimerTask connectionTask;
 
+    private JSONArray dataArray;
+    private int[] lastMapData ;
+    private float lastLocationX,lastLocationY;
+    private long lastPublishTopicMillis;
 
     public class ServiceBinder extends Binder {
         public boolean isConnected(){
@@ -78,7 +83,7 @@ public class RosConnectionService extends Service{
                     jsonArray.put(angularMsg);
 
                     body.put("op", "publish");
-                    body.put("topic", PUBLISH_TOPIC_CONTROL_COMMAND);
+                    body.put("topic", Constant.PUBLISH_TOPIC_CONTROL_COMMAND);
 
                     JSONObject message = new JSONObject();
                     message.put("angular", angularMsg);
@@ -124,7 +129,6 @@ public class RosConnectionService extends Service{
         public void disConnect() {
             connectionTask.cancel();
             rosBridgeClient.disconnect();
-//            onDestroy();
         }
     }
 
@@ -170,12 +174,17 @@ public class RosConnectionService extends Service{
                     Intent broadcastIntent = new Intent(ControlContract.ROS_RECEIVER_INTENTFILTER);
                     Bundle data = new Bundle();
                     if (!isConnected) {
-                        data.putInt("ros_conn_status", ControlContract.CONN_ROS_SERVER_ERROR);
+                        data.putInt(Constant.KEY_BROADCAST_ROS_CONN, ControlContract.CONN_ROS_SERVER_ERROR);
                         broadcastIntent.putExtras(data);
                         sendBroadcast(broadcastIntent);
                     } else{
-                        data.putInt("ros_conn_status", ControlContract.CONN_ROS_SERVER_SUCCESS);
+                        data.putInt(Constant.KEY_BROADCAST_ROS_CONN, ControlContract.CONN_ROS_SERVER_SUCCESS);
                         broadcastIntent.putExtras(data);
+                        try {
+                            Thread.sleep(1000);
+                        } catch (InterruptedException e) {
+                            e.printStackTrace();
+                        }
                         sendBroadcast(broadcastIntent);
                     }
                 }
@@ -211,23 +220,35 @@ public class RosConnectionService extends Service{
     //订阅某个topic后，接收到Ros服务器返回的message，回调此方法
     public void onEvent(PublishEvent event) {
         //topic的名称
-//        String topicName = event.name;
-//        Log.i(TAG, "onEvent:" + event.msg);
-//        //Topic为RobotStatus
-//        if (topicName.equals(SUBSCRIBE_ROBOT_STATUS)) {
-//            String msg = event.msg;
-//            JSONObject msgInfo;
-//            try {
-//                msgInfo = new JSONObject(msg);
-//                int id = msgInfo.getInt("id");
-//                boolean isMoving = msgInfo.getBoolean("ismoving");
-//                RobotStatus robotStatus = new RobotStatus(id, isMoving);
-//                EventBus.getDefault().post(robotStatus);
-//
-//            } catch (JSONException e) {
-//                e.printStackTrace();
-//            }
-//        }
+        String topicName = event.name;
+        Log.v(TAG, "onEvent:" + event.msg);
+        String response = event.msg;
+        if (topicName.equals(Constant.SUBSCRIBE_TOPIC_ODOM)) {
+            try {
+                JSONObject responseBody = new JSONObject(response);
+                JSONObject pos = responseBody.getJSONObject("pose").getJSONObject("pose").getJSONObject("position");
+                lastLocationX = (float) (double)pos.get("x");
+                lastLocationY = (float) (double)pos.get("y");
+                Log.v(TAG, "onEvent location: " + lastLocationX+"," + lastLocationY);
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
+        } else if (topicName.equals(Constant.SUBSCRIBE_TOPIC_MAP)) {
+            if(System.currentTimeMillis()-lastPublishTopicMillis<5000){
+                return;
+            }
+            try {
+                JSONObject responseBody = new JSONObject(response);
+                dataArray = responseBody.getJSONArray("data");
+                int rows = responseBody.getJSONObject("info").getInt("height");
+                int columns =responseBody.getJSONObject("info").getInt("width");
+                Log.i(TAG, "onEvent original MapSize:" + rows + "X" + columns + ".dataLength:" + dataArray.length());
+                EventBus.getDefault().post(new MapInfo(dataArray,rows,columns,lastLocationX,lastLocationY));
+            }catch (JSONException e) {
+                e.printStackTrace();
+            }
+            lastPublishTopicMillis = System.currentTimeMillis();
+        }
     }
 
     @Override
@@ -238,6 +259,7 @@ public class RosConnectionService extends Service{
     }
 
     public void startRosConnectionTimer() {
+        Log.i(TAG, "isConnected:" + isConnected);
         if (isConnected) {
             return;
         } else {

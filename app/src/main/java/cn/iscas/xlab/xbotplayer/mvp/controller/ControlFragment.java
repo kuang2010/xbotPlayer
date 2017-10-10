@@ -15,12 +15,10 @@
  */
 package cn.iscas.xlab.xbotplayer.mvp.controller;
 
-import android.content.BroadcastReceiver;
-import android.content.Context;
-import android.content.Intent;
 import android.content.IntentFilter;
 import android.graphics.Color;
 import android.os.Bundle;
+import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.text.Editable;
 import android.text.TextWatcher;
@@ -39,8 +37,9 @@ import cn.iscas.xlab.xbotplayer.App;
 import cn.iscas.xlab.xbotplayer.Config;
 import cn.iscas.xlab.xbotplayer.R;
 import cn.iscas.xlab.xbotplayer.RegexCheckUtil;
-import cn.iscas.xlab.xbotplayer.RockerView;
+import cn.iscas.xlab.xbotplayer.RosConnectionReceiver;
 import cn.iscas.xlab.xbotplayer.RosConnectionService;
+import cn.iscas.xlab.xbotplayer.customview.RockerView;
 import cn.iscas.xlab.xbotplayer.entity.Twist;
 
 /**
@@ -86,7 +85,6 @@ public class ControlFragment extends Fragment implements ControlContract.View{
     @Override
     public void initView() {
         Config.ROS_SERVER_IP = ipEditText.getEditableText().toString();
-
         ipEditText.addTextChangedListener(new TextWatcher() {
             @Override
             public void beforeTextChanged(CharSequence s, int start, int count, int after) {
@@ -160,15 +158,37 @@ public class ControlFragment extends Fragment implements ControlContract.View{
     public void onStart() {
         super.onStart();
         log("onStart()");
+        initBroadcastReceiver();
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        log("onResume()");
         presenter = new ControlPresenter(getContext(),this);
         presenter.start();
 
-        App app = (App) getActivity().getApplication();
-        presenter.setServiceProxy(app.getRosServiceProxy());
+        log("connectionStatus:" + Config.isRosServerConnected);
+        if (Config.isRosServerConnected) {
+            connectionState.setTextColor(Color.GREEN);
+            connectionState.setText("连接成功");
+            isRosServerConnected = true;
+            App app = (App) (getActivity().getApplication());
+            if (app.getRosServiceProxy() != null) {
+                presenter.setServiceProxy(app.getRosServiceProxy());
+            }
+        } else {
+            connectionState.setTextColor(Color.RED);
+            connectionState.setText("未连接");
+            isRosServerConnected = false;
+        }
 
+    }
 
-        initBroadcastReceiver();
-        
+    @Override
+    public void onActivityCreated(@Nullable Bundle savedInstanceState) {
+        super.onActivityCreated(savedInstanceState);
+        log("onActivityCreated()");
     }
 
     private void initBroadcastReceiver() {
@@ -180,6 +200,8 @@ public class ControlFragment extends Fragment implements ControlContract.View{
                     connectionState.setText("连接成功");
                     Toast.makeText(getContext(), "Ros服务端连接成功", Toast.LENGTH_SHORT).show();
                     isRosServerConnected = true;
+                    App app = (App) (getActivity().getApplication());
+                    presenter.setServiceProxy(app.getRosServiceProxy());
                 }
             }
 
@@ -202,7 +224,13 @@ public class ControlFragment extends Fragment implements ControlContract.View{
     public void onStop() {
         super.onStop();
         log("onStop()");
+    }
+
+    @Override
+    public void onDestroy() {
+        log("onDestroy()");
         getActivity().unregisterReceiver(receiver);
+        super.onDestroy();
     }
 
     public void setServicePresenter(RosConnectionService.ServiceBinder service) {
@@ -234,33 +262,22 @@ public class ControlFragment extends Fragment implements ControlContract.View{
         Log.i(TAG, TAG + " -- " + s);
     }
 
-    public static class RosConnectionReceiver extends BroadcastReceiver {
+    @Override
+    public void onSaveInstanceState(Bundle outState) {
+        log("onSaveInstanceState");
+        super.onSaveInstanceState(outState);
+    }
 
-        RosCallback rosCallback;
+    @Override
+    public void onViewStateRestored(@Nullable Bundle savedInstanceState) {
+        super.onViewStateRestored(savedInstanceState);
+        log("onViewStateRestored");
+    }
 
-        interface RosCallback {
-            void onSuccess();
-
-            void onFailure();
-        }
-
-        public RosConnectionReceiver(RosCallback callback) {
-            this.rosCallback = callback;
-        }
-
-        public void onReceive(Context context, Intent intent) {
-            Bundle data = intent.getExtras();
-            switch (data.getInt("ros_conn_status")) {
-                case ControlContract.CONN_ROS_SERVER_SUCCESS:
-                    rosCallback.onSuccess();
-                    break;
-                case ControlContract.CONN_ROS_SERVER_ERROR:
-                    rosCallback.onFailure();
-                    break;
-                default:
-                    break;
-            }
-        }
+    @Override
+    public void onPause() {
+        super.onPause();
+        log("onPause");
     }
 
 

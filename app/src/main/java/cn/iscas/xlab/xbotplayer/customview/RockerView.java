@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package cn.iscas.xlab.xbotplayer;
+package cn.iscas.xlab.xbotplayer.customview;
 
 import android.content.Context;
 import android.content.res.TypedArray;
@@ -30,6 +30,8 @@ import android.util.AttributeSet;
 import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
+
+import cn.iscas.xlab.xbotplayer.R;
 
 /**
  * Created by lisongting on 2017/9/28.
@@ -162,11 +164,12 @@ public class RockerView extends View{
         switch (motionEvent.getAction()) {
             case MotionEvent.ACTION_DOWN:
                 callbackStart();
+                getParent().requestDisallowInterceptTouchEvent(true);
                 break;
             case MotionEvent.ACTION_MOVE:
                 float moveX = motionEvent.getX();
                 float moveY = motionEvent.getY();
-                log("当前位置:" + moveX + "," + moveY);
+//                log("当前位置:" + moveX + "," + moveY);
                 mRockerPosition = getRockerPositionPoint(mCenterPoint, new Point((int)moveX, (int)moveY), mAreaRadius, mRockerRadius);
                 moveRocker(mRockerPosition.x, mRockerPosition.y);
                 break;
@@ -176,7 +179,8 @@ public class RockerView extends View{
                 float upX = motionEvent.getX();
                 float upY = motionEvent.getY();
                 moveRocker(mCenterPoint.x, mCenterPoint.y);
-                log("抬起位置：" + upX + "," + upY);
+                getParent().requestDisallowInterceptTouchEvent(false);
+//                log("抬起位置：" + upX + "," + upY);
                 break;
         }
         return true;
@@ -194,7 +198,7 @@ public class RockerView extends View{
         //计算角度
         double angle = radianToAngle(radian);
         callback(angle);
-        log("当前角度：" + angle);
+//        log("当前角度：" + angle);
 
         //如果当前触摸位置在可活动范围内，则返回当前位置点
         if (lenXY + rockerRadius < regionRadius) {
@@ -209,7 +213,7 @@ public class RockerView extends View{
 
     private void moveRocker(float x, float y) {
         mRockerPosition.set((int)x, (int)y);
-        log("移动位置：(" + x + "," + y + ")");
+//        log("移动位置：(" + x + "," + y + ")");
         invalidate();
 
     }
