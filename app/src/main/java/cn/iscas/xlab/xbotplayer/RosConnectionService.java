@@ -56,7 +56,6 @@ public class RosConnectionService extends Service{
     private TimerTask connectionTask;
 
     private JSONArray dataArray;
-    private int[] lastMapData ;
     private float lastLocationX,lastLocationY;
     private long lastPublishTopicMillis;
 

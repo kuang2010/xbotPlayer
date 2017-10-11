@@ -125,7 +125,7 @@ public class ROSBridgeWebSocketClient extends WebSocketClient {
                     e.printStackTrace();
                 }
 
-                System.out.println("Publish " + publish.topic);
+//                System.out.println("Publish " + publish.topic);
             } else if (operation instanceof ServiceResponse) {
                 ServiceResponse serviceResponse = ((ServiceResponse) operation);
                 JSONParser jsonParser = new JSONParser();

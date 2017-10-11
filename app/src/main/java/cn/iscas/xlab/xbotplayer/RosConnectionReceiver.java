@@ -30,9 +30,11 @@ public class RosConnectionReceiver extends BroadcastReceiver {
         switch (data.getInt(Constant.KEY_BROADCAST_ROS_CONN)) {
             case ControlContract.CONN_ROS_SERVER_SUCCESS:
                 rosCallback.onSuccess();
+                Config.isRosServerConnected = true;
                 break;
             case ControlContract.CONN_ROS_SERVER_ERROR:
                 rosCallback.onFailure();
+                Config.isRosServerConnected = false;
                 break;
             default:
                 break;

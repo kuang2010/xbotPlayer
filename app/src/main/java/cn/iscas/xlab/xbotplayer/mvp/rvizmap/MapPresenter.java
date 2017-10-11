@@ -71,9 +71,8 @@ public class MapPresenter implements MapContract.Presenter{
                         float locationY = mapInfo.getLocationY();
 
 
-                        int circleCenterX = (int) (canvasSize.getWidth() * (25 - locationX) / 50);
-                        int circleCenterY = (int) (canvasSize.getHeight() * (locationY + 25) / 50);
-
+                        int circleCenterX = (int) (mapInfo.getOriginMapColumns() * (25.0 + locationX) / 50.0);
+                        int circleCenterY = (int) (mapInfo.getOriginMapRows() * (25.0 + locationY) / 50.0);
 
                         int lightGreen = Color.parseColor("#9AFF9A");
                         Bitmap bitmap = Bitmap.createBitmap(canvasSize.getWidth(), canvasSize.getHeight(), Bitmap.Config.RGB_565);
@@ -82,8 +81,8 @@ public class MapPresenter implements MapContract.Presenter{
                             if((int)data.get(i)==-1){
                                 continue;
                             }
-                            x = i % mapInfo.getOriginMapColumns();
-                            y = i / mapInfo.getOriginMapColumns();
+                            x = i / mapInfo.getOriginMapColumns();
+                            y = i % mapInfo.getOriginMapColumns();
                             if((int)data.get(i) == 0) {
                                 if (Math.abs(x - circleCenterX )<10 && Math.abs(y - circleCenterY)<10) {
                                     bitmap.setPixel(x,y,Color.RED);
@@ -92,7 +91,7 @@ public class MapPresenter implements MapContract.Presenter{
                                 }
 
                             } else if((int)data.get(i)==100){
-                                if (Math.abs(x - circleCenterX )<15 && Math.abs(y - circleCenterY)<15) {
+                                if (Math.abs(x - circleCenterX )<10 && Math.abs(y - circleCenterY)<10) {
                                     bitmap.setPixel(x,y,Color.RED);
                                 }else {
                                     bitmap.setPixel(x, y, Color.WHITE);

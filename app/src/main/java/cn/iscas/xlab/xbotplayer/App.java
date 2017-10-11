@@ -43,7 +43,6 @@ public class App extends Application {
             public void onServiceConnected(ComponentName name, IBinder service) {
                 log("onServiceConnected()");
                 mServiceProxy = (RosConnectionService.ServiceBinder) service;
-                Config.isRosServerConnected = true;
             }
 
             @Override

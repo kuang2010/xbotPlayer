@@ -169,18 +169,17 @@ public class ControlFragment extends Fragment implements ControlContract.View{
         presenter.start();
 
         log("connectionStatus:" + Config.isRosServerConnected);
-        if (Config.isRosServerConnected) {
+        log("connectionStatus ControlFragment:" + isRosServerConnected);
+        if (!isRosServerConnected) {
+            connectionState.setTextColor(Color.RED);
+            connectionState.setText("未连接");
+        } else {
             connectionState.setTextColor(Color.GREEN);
             connectionState.setText("连接成功");
-            isRosServerConnected = true;
             App app = (App) (getActivity().getApplication());
             if (app.getRosServiceProxy() != null) {
                 presenter.setServiceProxy(app.getRosServiceProxy());
             }
-        } else {
-            connectionState.setTextColor(Color.RED);
-            connectionState.setText("未连接");
-            isRosServerConnected = false;
         }
 
     }

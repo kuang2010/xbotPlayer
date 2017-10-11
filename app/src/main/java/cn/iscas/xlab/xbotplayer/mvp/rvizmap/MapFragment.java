@@ -120,6 +120,7 @@ public class MapFragment extends Fragment implements MapContract.View{
 
     @Override
     public void initView() {
+        refreshLayout.setEnabled(false);
         refreshLayout.setColorSchemeResources(android.R.color.holo_purple
                 ,android.R.color.holo_orange_light
                 ,android.R.color.holo_blue_light);
