@@ -20,26 +20,44 @@ import android.view.WindowManager;
  */
 
 public class MapView extends View implements View.OnTouchListener{
-    int width,height;
+
     private static final String TAG = "MapView";
-    Matrix matrix = new Matrix();
+    int width,height;
+    Matrix matrix;
     private float scaleX = 1.0F;
     private float scaleY = 1.0F;
-    private int fingers;
     private Bitmap bitmap;
 
-    //与缩放和旋转相关的变量
+    //两手指的中心点
     private float gestureCenterX = 0;
     private float gestureCenterY = 0;
+    //新位置，两手指的中心点
+    private float newGestureCenterX = 0;
+    private float newGestureCenterY = 0;
+
     //两手指上次的距离
     private double oldDistance;
     //上次的角度
     private double oldAngle =0;
+    //当前的角度
+    private double newAngle =0;
+    //双指连线相于上次的旋转角度
     private float rotateAngle=0;
 
-    private final int MODE_NONE  =0;
-    private final int MODE_SCALE  =1;
-    private final int MODE_ROTATE  =2;
+    //平移的长度
+    private float translationX = 0;
+    private float translationY = 0;
+
+
+    //无效果
+    private final int MODE_NONE = 0;
+    //缩放
+    private final int MODE_SCALE = 1;
+    //旋转
+    private final int MODE_ROTATE = 2;
+    //平移
+    private final int MODE_DRAG = 3;
+
     private int mode = MODE_NONE;
 
     public MapView(Context context) {
@@ -48,6 +66,7 @@ public class MapView extends View implements View.OnTouchListener{
 
     public MapView(Context context, @Nullable AttributeSet attrs) {
         super(context, attrs);
+        matrix = new Matrix();
         setOnTouchListener(this);
     }
 
@@ -79,9 +98,8 @@ public class MapView extends View implements View.OnTouchListener{
             }
             width = widthSize;
             height = heightSize;
-            log("widthMode:"+widthMode);
-            log("width:"+width);
-            log("height:"+height);
+//            log("width:"+width);
+//            log("height:"+height);
 
         }
 
@@ -92,17 +110,16 @@ public class MapView extends View implements View.OnTouchListener{
     @Override
     protected void onDraw(Canvas canvas) {
         super.onDraw(canvas);
-//        matrix.reset();
 
         if (bitmap == null) {
             canvas.drawColor(Color.DKGRAY);
         } else {
             if (mode == MODE_ROTATE) {
                 matrix.postRotate(rotateAngle, gestureCenterX, gestureCenterY);
-//            matrix.reset();
             } else if (mode == MODE_SCALE) {
                 matrix.postScale(scaleX,scaleY,gestureCenterX,gestureCenterY);
-//            matrix.reset();
+            } else if (mode == MODE_DRAG) {
+                matrix.postTranslate(translationX, translationY);
             }
             canvas.drawBitmap(bitmap, matrix, null);
             bitmap.recycle();
@@ -129,12 +146,10 @@ public class MapView extends View implements View.OnTouchListener{
         switch (action) {
             case MotionEvent.ACTION_DOWN:
                 getParent().requestDisallowInterceptTouchEvent(true);
-//                log("ACTION_DOWN");
                 mode = MODE_NONE;
 
                 break;
             case MotionEvent.ACTION_POINTER_DOWN:
-//                log("ACTION_POINTER_DOWN");
                 mode = MODE_NONE;
 
                 oldDistance = getMoveDistance(event.getX(0), event.getY(0), event.getX(1), event.getY(1));
@@ -146,65 +161,58 @@ public class MapView extends View implements View.OnTouchListener{
                 int pointerCount = event.getPointerCount();
                 if (pointerCount == 2) {
                     double newDistance = getMoveDistance(event.getX(0), event.getY(0), event.getX(1), event.getY(1));
-                    double newAngle = getAngle(event.getX(0), event.getY(0), event.getX(1), event.getY(1));
-                    log("newDistance:" + newDistance + ",oldDistance:" + oldDistance);
-                    log("newAngle:" + newAngle + ",oldAngle:" + oldAngle);
+                    newAngle = getAngle(event.getX(0), event.getY(0), event.getX(1), event.getY(1));
+                    newGestureCenterX = (event.getX(0) + event.getX(1)) * 0.5F;
+                    newGestureCenterY = (event.getY(0) + event.getY(1)) * 0.5F;
+
+//                    log("newDistance:" + newDistance + ",oldDistance:" + oldDistance);
+//                    log("newAngle:" + newAngle + ",oldAngle:" + oldAngle);
                     if (Math.abs(newAngle - oldAngle) > 25 ) {
                         rotateAngle = (float) (newAngle - oldAngle);
-                        if (rotateAngle > 0) {
-//                            rotateAngle += 1;
+                        if (rotateAngle < 0||rotateAngle>270) {
                             rotateAngle = 3;
                         } else {
-//                            rotateAngle -= 1;
                             rotateAngle = -3;
                         }
                         mode = MODE_ROTATE;
-                        log("-------rotate:" + rotateAngle);
+//                        log("-------rotate:" + rotateAngle);
                         invalidate();
-                    } else if (Math.abs(newDistance - oldDistance) > 100 && oldDistance > 0) {
+                    } else if (Math.abs(newDistance - oldDistance) > 200 && oldDistance > 0) {
 
                         double delta = newDistance - oldDistance;
                         if (delta > 0) {
-//                            scaleX += 0.1;
-//                            scaleY += 0.1;
                             scaleX = 1.05F;
                             scaleY = 1.05F;
                         } else {
-//                            scaleX -= 0.1;
-//                            scaleY -= 0.1;
                             scaleX = 0.95F;
                             scaleY = 0.95F;
 
                         }
-                        if (scaleX < 0.5) {
-                            scaleX = 0.5F;
-                        }
-                        if (scaleY < 0.5) {
-                            scaleY = 0.5F;
-                        }
                         mode = MODE_SCALE;
-                        log("-------scale:" + scaleX);
+//                        log("-------scale:" + scaleX);
                         invalidate();
-                    } else {
-                        mode = MODE_NONE;
+                    } else if(getMoveDistance(newGestureCenterX,newGestureCenterY,gestureCenterX,gestureCenterY)>50){
+                        mode = MODE_DRAG;
+                        translationX = (newGestureCenterX - gestureCenterX)/3;
+                        translationY = (newGestureCenterY - gestureCenterY)/3;
+                        invalidate();
                     }
-
                 }
 
                 break;
             case MotionEvent.ACTION_POINTER_UP:
-//                log("ACTION_POINTER_UP");
-                log("PointerCount:" + event.getPointerCount());
+                oldAngle = newAngle;
                 break;
             case MotionEvent.ACTION_UP:
-//                log("ACTION_UP");
-                getParent().requestDisallowInterceptTouchEvent(false);
                 mode = MODE_NONE;
                 oldAngle = 0;
+                newAngle = 0;
                 oldDistance = 0;
                 rotateAngle = 0;
                 scaleX=1.0F;
                 scaleY = 1.0F;
+                translationX = 0;
+                translationY = 0;
                 break;
         }
         return true;
@@ -213,19 +221,20 @@ public class MapView extends View implements View.OnTouchListener{
     //计算两个手指的移动距离
     public double getMoveDistance(float x1,float y1,float x2,float y2) {
         float x = x1 - x2;
-        float y = y1 - y1;
-        return Math.sqrt(x * x - y * y);
+        float y = y1 - y2;
+        return Math.sqrt(x * x + y * y);
 
     }
 
 
+    //获取两个触碰点的角度，该角度系为：以第一个触碰点为原点，逆时针方向走,角度变化[0,360)
     public double getAngle(float x1,float y1,float x2,float y2) {
 
         float lenX = x2 - x1;
         float lenY = y2 - y1;
         float lenXY = (float) Math.sqrt((double) (lenX * lenX+ lenY * lenY));
-        //计算弧度,如果触摸点在中心位置以下，则为正弧度，如果在中心位置上面，则为负
-        double radian = Math.acos(lenX / lenXY) * (y2 < y1 ? -1 : 1);
+        //如果第二个点在第一个点下方，则为正弧度，否则为负弧度
+        double radian = Math.acos(lenX / lenXY) * (y2 < y1 ? 1 : -1);
         double tmp = Math.round(radian / Math.PI * 180);
         return tmp >= 0 ? tmp : tmp + 360;
 
