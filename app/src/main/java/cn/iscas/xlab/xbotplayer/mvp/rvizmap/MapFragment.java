@@ -15,9 +15,9 @@
  */
 package cn.iscas.xlab.xbotplayer.mvp.rvizmap;
 
-import android.content.IntentFilter;
 import android.graphics.Bitmap;
 import android.os.Bundle;
+import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.util.Log;
@@ -29,10 +29,9 @@ import android.widget.Button;
 import android.widget.Toast;
 
 import cn.iscas.xlab.xbotplayer.App;
+import cn.iscas.xlab.xbotplayer.Config;
 import cn.iscas.xlab.xbotplayer.R;
-import cn.iscas.xlab.xbotplayer.RosConnectionReceiver;
 import cn.iscas.xlab.xbotplayer.customview.MapView;
-import cn.iscas.xlab.xbotplayer.mvp.controller.ControlContract;
 
 /**
  * Created by lisongting on 2017/10/9.
@@ -43,18 +42,17 @@ public class MapFragment extends Fragment implements MapContract.View{
     public static final String TAG = "MapFragment";
     private MapView mapView;
     private MapContract.Presenter presenter ;
-    private RosConnectionReceiver receiver;
-    private boolean isRosServerConnected;
     private Button toggleMap;
     private boolean isMapOpened;
     private SwipeRefreshLayout refreshLayout;
 
     public MapFragment(){
-
+        log("MapFragment() Created()");
     }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+        log("onCreateView()");
         View view = inflater.inflate(R.layout.fragment_map,container,false);
         mapView = (MapView) view.findViewById(R.id.map_view);
         toggleMap = (Button) view.findViewById(R.id.toggleMap);
@@ -65,41 +63,25 @@ public class MapFragment extends Fragment implements MapContract.View{
     }
 
 
-
-
     @Override
     public void onResume() {
         super.onResume();
-        presenter = new MapPresenter(getContext(), this);
+        log("onResume()");
 
-        initBroadcastReceiver();
+//        if (Config.isRosServerConnected) {
+//            App app = (App) (getActivity().getApplication());
+//            if (presenter == null) {
+//                presenter = new MapPresenter(getContext(), this);
+//                presenter.setServiceProxy(app.getRosServiceProxy());
+//                presenter.start();
+//            }
+//        }
     }
 
-    private void initBroadcastReceiver() {
-        receiver = new RosConnectionReceiver(new RosConnectionReceiver.RosCallback() {
-            @Override
-            public void onSuccess() {
-                if (!isRosServerConnected) {
-                    Toast.makeText(getContext(), "Ros服务端连接成功", Toast.LENGTH_SHORT).show();
-                    isRosServerConnected = true;
-                    App app = (App) (getActivity().getApplication());
-                    presenter.setServiceProxy(app.getRosServiceProxy());
-                    presenter.start();
-                }
-            }
-
-            @Override
-            public void onFailure() {
-                if (isRosServerConnected) {
-                    isRosServerConnected = false;
-                }
-            }
-        });
-
-        IntentFilter filter = new IntentFilter(ControlContract.ROS_RECEIVER_INTENTFILTER);
-        getActivity().registerReceiver(receiver,filter);
-
-
+    @Override
+    public void onActivityCreated(@Nullable Bundle savedInstanceState) {
+        super.onActivityCreated(savedInstanceState);
+        log("onActivityCreate()");
     }
 
     @Override
@@ -110,7 +92,9 @@ public class MapFragment extends Fragment implements MapContract.View{
 
     @Override
     public void hideLoading() {
-        refreshLayout.setRefreshing(false);
+        if (refreshLayout != null) {
+            refreshLayout.setRefreshing(false);
+        }
     }
 
     @Override
@@ -130,7 +114,7 @@ public class MapFragment extends Fragment implements MapContract.View{
             @Override
             public void onClick(View v) {
                 if (!isMapOpened) {
-                    if (!isRosServerConnected) {
+                    if (!Config.isRosServerConnected) {
                         Toast.makeText(getContext(), "Ros服务器未连接", Toast.LENGTH_SHORT).show();
                     } else{
                         showLoading();
@@ -153,7 +137,6 @@ public class MapFragment extends Fragment implements MapContract.View{
     @Override
     public void onDestroy() {
         presenter.destroy();
-        getActivity().unregisterReceiver(receiver);
         super.onDestroy();
     }
 
@@ -166,6 +149,16 @@ public class MapFragment extends Fragment implements MapContract.View{
     public void onHiddenChanged(boolean hidden) {
         Log.i(TAG, "isHided:" + hidden);
         super.onHiddenChanged(hidden);
+        if (!hidden) {
+            if (Config.isRosServerConnected) {
+                App app = (App) (getActivity().getApplication());
+                if (presenter == null) {
+                    presenter = new MapPresenter(getContext(), this);
+                    presenter.setServiceProxy(app.getRosServiceProxy());
+                    presenter.start();
+                }
+            }
+        }
     }
 
     @Override
@@ -177,5 +170,9 @@ public class MapFragment extends Fragment implements MapContract.View{
     @Override
     public Size getMapRealSize() {
         return mapView.getSize();
+    }
+
+    private void log(String string) {
+        Log.i(TAG,TAG + " -- " + string);
     }
 }

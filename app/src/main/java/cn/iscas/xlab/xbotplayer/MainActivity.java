@@ -15,19 +15,16 @@
  */
 package cn.iscas.xlab.xbotplayer;
 
-import android.content.SharedPreferences;
 import android.os.Bundle;
-import android.preference.PreferenceManager;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.design.widget.BottomNavigationView;
-import android.support.v4.app.Fragment;
-import android.support.v4.app.FragmentPagerAdapter;
-import android.support.v4.view.ViewPager;
+import android.support.v4.app.FragmentManager;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.KeyEvent;
 import android.view.MenuItem;
+import android.widget.FrameLayout;
 import android.widget.Toast;
 
 import cn.iscas.xlab.xbotplayer.mvp.controller.ControlFragment;
@@ -39,98 +36,67 @@ import cn.iscas.xlab.xbotplayer.mvp.rvizmap.MapFragment;
 
 public class MainActivity extends AppCompatActivity {
 
-    private ViewPager viewPager;
-
     private BottomNavigationView bottomNavigationView;
-
-    private FragmentPagerAdapter fragmentPagerAdapter;
+    private FrameLayout container;
 
     private ControlFragment controlFragment;
     private MapFragment mapFragment;
+    private SimpleFragment tmpFragment;
     private long lastExitTime;
+    private FragmentManager fragmentManager;
     @Override
-
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        viewPager = (ViewPager) findViewById(R.id.view_pager);
+        container = (FrameLayout) findViewById(R.id.container);
         bottomNavigationView = (BottomNavigationView) findViewById(R.id.bottom_navigation);
 
         controlFragment = new ControlFragment();
         mapFragment = new MapFragment();
-
-        fragmentPagerAdapter = new FragmentPagerAdapter(getSupportFragmentManager()) {
-            @Override
-            public Fragment getItem(int position) {
-                if (position == 0) {
-
-                    return controlFragment;
-                } else if (position == 1) {
-                    return mapFragment;
-                }
-                return SimpleFragment.getInstance("临时页面");
-            }
-
-            @Override
-            public int getCount() {
-                return 3;
-            }
-        };
-
-        viewPager.setAdapter(fragmentPagerAdapter);
+        tmpFragment = SimpleFragment.getInstance("临时页面");
+        fragmentManager = getSupportFragmentManager();
 
         initListeners();
+
+        fragmentManager.beginTransaction()
+                .add(R.id.container, mapFragment)
+                .add(R.id.container, controlFragment)
+                .add(R.id.container, tmpFragment)
+                .commit();
+        bottomNavigationView.setSelectedItemId(R.id.controller);
+
     }
+
+
 
     private void initListeners() {
 
-        viewPager.addOnPageChangeListener(new ViewPager.OnPageChangeListener() {
-            @Override
-            public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {
-
-            }
-
-            @Override
-            public void onPageSelected(int position) {
-                switch (position) {
-                    case 0:
-                        getSupportFragmentManager().beginTransaction()
-                                .hide(mapFragment)
-                                .commit();
-                        bottomNavigationView.setSelectedItemId(R.id.controller);
-                        break;
-                    case 1:
-                        getSupportFragmentManager().beginTransaction()
-                                .show(mapFragment)
-                                .commit();
-                        bottomNavigationView.setSelectedItemId(R.id.map);
-                        break;
-                    case 2:
-                        bottomNavigationView.setSelectedItemId(R.id.camera);
-                        break;
-                    default:
-                        break;
-                }
-            }
-
-            @Override
-            public void onPageScrollStateChanged(int state) {
-
-            }
-        });
-//        viewPager.requestDisallowInterceptTouchEvent(false);
         bottomNavigationView.setOnNavigationItemSelectedListener(new BottomNavigationView.OnNavigationItemSelectedListener() {
             @Override
             public boolean onNavigationItemSelected(@NonNull MenuItem item) {
                 switch (item.getItemId()) {
                     case R.id.controller:
-                        viewPager.setCurrentItem(0);
+                        mapFragment.hideLoading();
+                        fragmentManager.beginTransaction()
+                                .hide(mapFragment)
+                                .hide(tmpFragment)
+                                .show(controlFragment)
+                                .commit();
                         break;
                     case R.id.map:
-                        viewPager.setCurrentItem(1);
+                        fragmentManager.beginTransaction()
+                                .hide(controlFragment)
+                                .hide(tmpFragment)
+                                .show(mapFragment)
+                                .commit();
                         break;
                     case R.id.camera:
-                        viewPager.setCurrentItem(2);
+                        mapFragment.hideLoading();
+                        fragmentManager.beginTransaction()
+                                .hide(controlFragment)
+                                .hide(mapFragment)
+                                .show(tmpFragment)
+                                .commit();
                         break;
                     default:
                         break;

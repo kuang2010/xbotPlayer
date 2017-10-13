@@ -90,7 +90,7 @@ public class RosConnectionService extends Service{
                     body.put("msg", message);
 
                     rosBridgeClient.send(body.toString());
-                    Log.i(TAG, "publish '/cmd_vel_mux/input/teleop' to Ros Server :\n" + body.toString());
+                    Log.v(TAG, "publish '/cmd_vel_mux/input/teleop' to Ros Server :\n" + body.toString());
                 } catch (JSONException e) {
                     e.printStackTrace();
                 }

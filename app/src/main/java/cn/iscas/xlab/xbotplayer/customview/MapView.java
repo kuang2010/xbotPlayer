@@ -133,7 +133,7 @@ public class MapView extends View implements View.OnTouchListener{
 
     public void updateMap(Bitmap bitmap) {
         this.bitmap = bitmap;
-        invalidate();
+        postInvalidate();
     }
 
     public Size getSize(){
@@ -151,13 +151,13 @@ public class MapView extends View implements View.OnTouchListener{
                 break;
             case MotionEvent.ACTION_POINTER_DOWN:
                 mode = MODE_NONE;
-
                 oldDistance = getMoveDistance(event.getX(0), event.getY(0), event.getX(1), event.getY(1));
                 oldAngle = getAngle(event.getX(0), event.getY(0), event.getX(1), event.getY(1));
                 gestureCenterX = (event.getX(0) + event.getX(1)) * 0.5F;
                 gestureCenterY = (event.getY(0) + event.getY(1)) * 0.5F;
                 break;
             case MotionEvent.ACTION_MOVE:
+
                 int pointerCount = event.getPointerCount();
                 if (pointerCount == 2) {
                     double newDistance = getMoveDistance(event.getX(0), event.getY(0), event.getX(1), event.getY(1));
@@ -191,10 +191,10 @@ public class MapView extends View implements View.OnTouchListener{
                         mode = MODE_SCALE;
 //                        log("-------scale:" + scaleX);
                         invalidate();
-                    } else if(getMoveDistance(newGestureCenterX,newGestureCenterY,gestureCenterX,gestureCenterY)>50){
+                    } else if(getMoveDistance(newGestureCenterX,newGestureCenterY,gestureCenterX,gestureCenterY)>100){
                         mode = MODE_DRAG;
-                        translationX = (newGestureCenterX - gestureCenterX)/3;
-                        translationY = (newGestureCenterY - gestureCenterY)/3;
+                        translationX = (newGestureCenterX - gestureCenterX)/10;
+                        translationY = (newGestureCenterY - gestureCenterY)/10;
                         invalidate();
                     }
                 }
@@ -213,6 +213,7 @@ public class MapView extends View implements View.OnTouchListener{
                 scaleY = 1.0F;
                 translationX = 0;
                 translationY = 0;
+                getParent().requestDisallowInterceptTouchEvent(false);
                 break;
         }
         return true;

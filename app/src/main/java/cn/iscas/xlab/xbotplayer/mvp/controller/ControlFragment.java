@@ -254,7 +254,7 @@ public class ControlFragment extends Fragment implements ControlContract.View{
 
     public synchronized void cancelTimerTask() {
         timer.cancel();
-        log("TimerTask is killed ");
+        log("Stopped Control..TimerTask is canceled ");
     }
 
     private void log(String s) {

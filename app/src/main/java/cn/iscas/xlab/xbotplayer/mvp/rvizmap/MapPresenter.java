@@ -2,6 +2,7 @@ package cn.iscas.xlab.xbotplayer.mvp.rvizmap;
 
 import android.content.Context;
 import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.graphics.Color;
 import android.os.Binder;
 import android.support.annotation.NonNull;
@@ -9,6 +10,8 @@ import android.util.Log;
 import android.util.Size;
 
 import org.json.JSONArray;
+
+import java.io.ByteArrayOutputStream;
 
 import cn.iscas.xlab.xbotplayer.Constant;
 import cn.iscas.xlab.xbotplayer.RosConnectionService;
@@ -22,22 +25,25 @@ import io.reactivex.functions.Function;
 import io.reactivex.observers.DisposableObserver;
 import io.reactivex.schedulers.Schedulers;
 
-import static android.content.ContentValues.TAG;
-
 /**
  * Created by lisongting on 2017/10/9.
  */
 
 public class MapPresenter implements MapContract.Presenter{
 
+    private static final String TAG = "MapPresenter";
     private Context context;
     private MapContract.View view ;
     private RosConnectionService.ServiceBinder serviceProxy;
     private CompositeDisposable compositeDisposable;
+    private BitmapFactory.Options options;
+    private ByteArrayOutputStream bos;
 
     public MapPresenter(Context context,MapContract.View view) {
         this.context = context;
         this.view = view;
+        options = new BitmapFactory.Options();
+//        options.inSampleSize = 2;
     }
 
     @Override
@@ -45,21 +51,24 @@ public class MapPresenter implements MapContract.Presenter{
         compositeDisposable = new CompositeDisposable();
         EventBus.getDefault().register(this);
 
-        serviceProxy.manipulateTopic(Constant.SUBSCRIBE_TOPIC_ODOM,true);
+        if (serviceProxy != null) {
+            serviceProxy.manipulateTopic(Constant.SUBSCRIBE_TOPIC_ODOM, true);
+        } else {
+            Log.e(TAG, "serviceProxy is null");
+        }
+
     }
 
     @Override
     public void setServiceProxy(@NonNull Binder binder) {
         serviceProxy = (RosConnectionService.ServiceBinder) binder;
+
     }
 
 
     public void onEvent(MapInfo mapInfo) {
-        if (view.isHided()) {
-            return;
-        }
         Disposable disposable = Observable.just(mapInfo)
-                .subscribeOn(Schedulers.io())
+                .subscribeOn(Schedulers.computation())
                 .map(new Function<MapInfo, Bitmap>() {
                     @Override
                     public Bitmap apply(@io.reactivex.annotations.NonNull MapInfo mapInfo) throws Exception {
@@ -75,7 +84,8 @@ public class MapPresenter implements MapContract.Presenter{
                         int circleCenterY = (int) (mapInfo.getOriginMapRows() * (25.0 + locationY) / 50.0);
 
                         int lightGreen = Color.parseColor("#9AFF9A");
-                        Bitmap bitmap = Bitmap.createBitmap(canvasSize.getWidth(), canvasSize.getHeight(), Bitmap.Config.RGB_565);
+                        Bitmap bigMap = Bitmap.createBitmap(canvasSize.getWidth(), canvasSize.getHeight(), Bitmap.Config.RGB_565);
+
                         int x,y;
                         for(int i=0;i<data.length();i++) {
                             if((int)data.get(i)==-1){
@@ -83,24 +93,27 @@ public class MapPresenter implements MapContract.Presenter{
                             }
                             x = i / mapInfo.getOriginMapColumns();
                             y = i % mapInfo.getOriginMapColumns();
-                            if((int)data.get(i) == 0) {
-                                if (Math.abs(x - circleCenterX )<10 && Math.abs(y - circleCenterY)<10) {
-                                    bitmap.setPixel(x,y,Color.RED);
-                                }else{
-                                    bitmap.setPixel(x, y,lightGreen);
-                                }
-
-                            } else if((int)data.get(i)==100){
-                                if (Math.abs(x - circleCenterX )<10 && Math.abs(y - circleCenterY)<10) {
-                                    bitmap.setPixel(x,y,Color.RED);
-                                }else {
-                                    bitmap.setPixel(x, y, Color.WHITE);
+                            if (Math.abs(x - circleCenterX) < 10 && Math.abs(y - circleCenterY) < 10) {
+                                bigMap.setPixel(x, y, Color.RED);
+                            } else {
+                                if((int)data.get(i) == 0) {
+                                    bigMap.setPixel(x, y,lightGreen);
+                                } else if((int)data.get(i)==100){
+                                    bigMap.setPixel(x, y, Color.WHITE);
                                 }
                             }
+
                         }
 
-                        return bitmap;
+//                        bos = new ByteArrayOutputStream();
+//                        bigMap.compress(Bitmap.CompressFormat.PNG, 80, bos);
+//                        Bitmap small = BitmapFactory.decodeByteArray(bos.toByteArray(), 0, bos.size(), options);
+//                        bos.reset();
+//                        bigMap.recycle();
+//                        return small;
+                        return bigMap;
                     }
+
                 })
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribeWith(new DisposableObserver<Bitmap>() {
@@ -119,7 +132,7 @@ public class MapPresenter implements MapContract.Presenter{
 
                     @Override
                     public void onComplete() {
-                        log("onComplete()");
+                        log("onComplete() -- map loaded successfully");
                     }
                 });
         compositeDisposable.add(disposable);
@@ -142,12 +155,20 @@ public class MapPresenter implements MapContract.Presenter{
 
     @Override
     public void subscribeMapData() {
-        serviceProxy.manipulateTopic(Constant.SUBSCRIBE_TOPIC_MAP,true);
+        if (serviceProxy != null) {
+            serviceProxy.manipulateTopic(Constant.SUBSCRIBE_TOPIC_MAP,true);
+        } else {
+            Log.e(TAG, "serviceProxy is null");
+        }
     }
 
     @Override
     public void unsubscribeMapData() {
-        serviceProxy.manipulateTopic(Constant.SUBSCRIBE_TOPIC_MAP,false);
+        if (serviceProxy != null) {
+            serviceProxy.manipulateTopic(Constant.SUBSCRIBE_TOPIC_MAP,false);
+        } else {
+            Log.e(TAG, "serviceProxy is null");
+        }
     }
 
     private void log(String s) {
