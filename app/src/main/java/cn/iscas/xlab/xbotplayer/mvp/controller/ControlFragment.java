@@ -36,7 +36,7 @@ import java.util.TimerTask;
 import cn.iscas.xlab.xbotplayer.App;
 import cn.iscas.xlab.xbotplayer.Config;
 import cn.iscas.xlab.xbotplayer.R;
-import cn.iscas.xlab.xbotplayer.RegexCheckUtil;
+import cn.iscas.xlab.xbotplayer.util.RegexCheckUtil;
 import cn.iscas.xlab.xbotplayer.RosConnectionReceiver;
 import cn.iscas.xlab.xbotplayer.RosConnectionService;
 import cn.iscas.xlab.xbotplayer.customview.RockerView;

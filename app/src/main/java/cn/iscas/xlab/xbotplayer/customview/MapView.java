@@ -9,7 +9,6 @@ import android.support.annotation.Nullable;
 import android.util.AttributeSet;
 import android.util.DisplayMetrics;
 import android.util.Log;
-import android.util.Size;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.WindowManager;
@@ -31,9 +30,6 @@ public class MapView extends View implements View.OnTouchListener{
     //两手指的中心点
     private float gestureCenterX = 0;
     private float gestureCenterY = 0;
-    //新位置，两手指的中心点
-    private float newGestureCenterX = 0;
-    private float newGestureCenterY = 0;
 
     //两手指上次的距离
     private double oldDistance;
@@ -47,7 +43,6 @@ public class MapView extends View implements View.OnTouchListener{
     //平移的长度
     private float translationX = 0;
     private float translationY = 0;
-
 
     //无效果
     private final int MODE_NONE = 0;
@@ -102,7 +97,6 @@ public class MapView extends View implements View.OnTouchListener{
 //            log("height:"+height);
 
         }
-
         setMeasuredDimension(widthSize, heightSize);
 
     }
@@ -136,10 +130,6 @@ public class MapView extends View implements View.OnTouchListener{
         postInvalidate();
     }
 
-    public Size getSize(){
-        return new Size(width, height);
-    }
-
     @Override
     public boolean onTouch(View v, MotionEvent event) {
         int action = event.getActionMasked();
@@ -162,8 +152,8 @@ public class MapView extends View implements View.OnTouchListener{
                 if (pointerCount == 2) {
                     double newDistance = getMoveDistance(event.getX(0), event.getY(0), event.getX(1), event.getY(1));
                     newAngle = getAngle(event.getX(0), event.getY(0), event.getX(1), event.getY(1));
-                    newGestureCenterX = (event.getX(0) + event.getX(1)) * 0.5F;
-                    newGestureCenterY = (event.getY(0) + event.getY(1)) * 0.5F;
+                    float newGestureCenterX = (event.getX(0) + event.getX(1)) * 0.5F;
+                    float newGestureCenterY = (event.getY(0) + event.getY(1)) * 0.5F;
 
 //                    log("newDistance:" + newDistance + ",oldDistance:" + oldDistance);
 //                    log("newAngle:" + newAngle + ",oldAngle:" + oldAngle);
@@ -191,7 +181,7 @@ public class MapView extends View implements View.OnTouchListener{
                         mode = MODE_SCALE;
 //                        log("-------scale:" + scaleX);
                         invalidate();
-                    } else if(getMoveDistance(newGestureCenterX,newGestureCenterY,gestureCenterX,gestureCenterY)>100){
+                    } else if(getMoveDistance(newGestureCenterX, newGestureCenterY,gestureCenterX,gestureCenterY)>100){
                         mode = MODE_DRAG;
                         translationX = (newGestureCenterX - gestureCenterX)/10;
                         translationY = (newGestureCenterY - gestureCenterY)/10;
@@ -239,6 +229,12 @@ public class MapView extends View implements View.OnTouchListener{
         double tmp = Math.round(radian / Math.PI * 180);
         return tmp >= 0 ? tmp : tmp + 360;
 
+    }
+
+    public void reset(){
+        matrix.reset();
+        mode = MODE_NONE;
+        postInvalidate();
     }
 
 

@@ -20,6 +20,7 @@ import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.design.widget.BottomNavigationView;
 import android.support.v4.app.FragmentManager;
+import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.KeyEvent;
@@ -44,6 +45,7 @@ public class MainActivity extends AppCompatActivity {
     private SimpleFragment tmpFragment;
     private long lastExitTime;
     private FragmentManager fragmentManager;
+    private ActionBar actionBar;
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -55,6 +57,7 @@ public class MainActivity extends AppCompatActivity {
         mapFragment = new MapFragment();
         tmpFragment = SimpleFragment.getInstance("临时页面");
         fragmentManager = getSupportFragmentManager();
+        actionBar = getSupportActionBar();
 
         initListeners();
 
@@ -76,6 +79,7 @@ public class MainActivity extends AppCompatActivity {
             public boolean onNavigationItemSelected(@NonNull MenuItem item) {
                 switch (item.getItemId()) {
                     case R.id.controller:
+                        actionBar.setTitle("遥控器");
                         mapFragment.hideLoading();
                         fragmentManager.beginTransaction()
                                 .hide(mapFragment)
@@ -84,6 +88,7 @@ public class MainActivity extends AppCompatActivity {
                                 .commit();
                         break;
                     case R.id.map:
+                        actionBar.setTitle("2D地图");
                         fragmentManager.beginTransaction()
                                 .hide(controlFragment)
                                 .hide(tmpFragment)
@@ -91,6 +96,7 @@ public class MainActivity extends AppCompatActivity {
                                 .commit();
                         break;
                     case R.id.camera:
+                        actionBar.setTitle("摄像头");
                         mapFragment.hideLoading();
                         fragmentManager.beginTransaction()
                                 .hide(controlFragment)

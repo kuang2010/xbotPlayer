@@ -43,6 +43,7 @@ public class MapFragment extends Fragment implements MapContract.View{
     private MapView mapView;
     private MapContract.Presenter presenter ;
     private Button toggleMap;
+    private Button resetButton;
     private boolean isMapOpened;
     private SwipeRefreshLayout refreshLayout;
 
@@ -56,6 +57,7 @@ public class MapFragment extends Fragment implements MapContract.View{
         View view = inflater.inflate(R.layout.fragment_map,container,false);
         mapView = (MapView) view.findViewById(R.id.map_view);
         toggleMap = (Button) view.findViewById(R.id.toggleMap);
+        resetButton = (Button) view.findViewById(R.id.reset);
         refreshLayout = (SwipeRefreshLayout) view.findViewById(R.id.refresh_layout);
         initView();
         initOnClickListener();
@@ -67,15 +69,6 @@ public class MapFragment extends Fragment implements MapContract.View{
     public void onResume() {
         super.onResume();
         log("onResume()");
-
-//        if (Config.isRosServerConnected) {
-//            App app = (App) (getActivity().getApplication());
-//            if (presenter == null) {
-//                presenter = new MapPresenter(getContext(), this);
-//                presenter.setServiceProxy(app.getRosServiceProxy());
-//                presenter.start();
-//            }
-//        }
     }
 
     @Override
@@ -87,7 +80,7 @@ public class MapFragment extends Fragment implements MapContract.View{
     @Override
     public void showLoading() {
         refreshLayout.setRefreshing(true);
-        Toast.makeText(getContext(), "正在加载地图数据，请稍后", Toast.LENGTH_LONG).show();
+        Toast.makeText(getContext(), "等待地图数据更新，请稍后", Toast.LENGTH_LONG).show();
     }
 
     @Override
@@ -132,6 +125,15 @@ public class MapFragment extends Fragment implements MapContract.View{
                 }
             }
         });
+
+        resetButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (isMapOpened) {
+                    mapView.reset();
+                }
+            }
+        });
     }
 
     @Override
@@ -169,7 +171,7 @@ public class MapFragment extends Fragment implements MapContract.View{
 
     @Override
     public Size getMapRealSize() {
-        return mapView.getSize();
+        return new Size(mapView.getWidth(), mapView.getHeight());
     }
 
     private void log(String string) {

@@ -30,7 +30,6 @@ import org.json.JSONObject;
 import java.util.Timer;
 import java.util.TimerTask;
 
-import cn.iscas.xlab.xbotplayer.entity.MapInfo;
 import cn.iscas.xlab.xbotplayer.entity.PublishEvent;
 import cn.iscas.xlab.xbotplayer.entity.Twist;
 import cn.iscas.xlab.xbotplayer.mvp.controller.ControlContract;
@@ -222,32 +221,14 @@ public class RosConnectionService extends Service{
         String topicName = event.name;
         Log.v(TAG, "onEvent:" + event.msg);
         String response = event.msg;
-        if (topicName.equals(Constant.SUBSCRIBE_TOPIC_ODOM)) {
-            try {
-                JSONObject responseBody = new JSONObject(response);
-                JSONObject pos = responseBody.getJSONObject("pose").getJSONObject("pose").getJSONObject("position");
-                lastLocationX = (float) (double)pos.get("x");
-                lastLocationY = (float) (double)pos.get("y");
-                Log.v(TAG, "onEvent location: " + lastLocationX+"," + lastLocationY);
-            } catch (JSONException e) {
-                e.printStackTrace();
+        try {
+            JSONObject object = new JSONObject(response);
+            if (topicName.equals(Constant.SUBSCRIBE_TOPIC_MAP) && response.length()>100) {
+                EventBus.getDefault().post(object.get("data"));
             }
-        } else if (topicName.equals(Constant.SUBSCRIBE_TOPIC_MAP)) {
-            if(System.currentTimeMillis()-lastPublishTopicMillis<5000){
-                return;
-            }
-            try {
-                JSONObject responseBody = new JSONObject(response);
-                dataArray = responseBody.getJSONArray("data");
-                int rows = responseBody.getJSONObject("info").getInt("height");
-                int columns =responseBody.getJSONObject("info").getInt("width");
-                Log.i(TAG, "onEvent original MapSize:" + rows + "X" + columns + ".dataLength:" + dataArray.length());
-                EventBus.getDefault().post(new MapInfo(dataArray,rows,columns,lastLocationX,lastLocationY));
-            }catch (JSONException e) {
-                e.printStackTrace();
-            }
-            lastPublishTopicMillis = System.currentTimeMillis();
+        } catch (JSONException e) {
         }
+
     }
 
     @Override
