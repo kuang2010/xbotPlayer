@@ -15,4 +15,17 @@
   ~ limitations under the License.
   -->
     <string name="app_name">XbotPlayer</string>
+
+    <string name="key_broadcast_ros_connection">ros_conn_status</string>
+
+    <string name="subscribe_topic_map">/base64_img/map_img</string>
+
+    <string name="publish_topic_control_command">/cmd_vel_mux/input/teleop</string>
+
+    <string name="pref_key_ros_server_ip">ros_server_ip</string>
+
+    <string name="pref_key_speed">xbot_speed</string>
+
+    <string name="pref_speed_summary">0.3</string>
+
 </resources>

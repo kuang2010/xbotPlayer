@@ -9,6 +9,7 @@ import android.util.Size;
 
 import cn.iscas.xlab.xbotplayer.Constant;
 import cn.iscas.xlab.xbotplayer.RosConnectionService;
+import cn.iscas.xlab.xbotplayer.entity.Twist;
 import cn.iscas.xlab.xbotplayer.util.ImageUtils;
 import de.greenrobot.event.EventBus;
 import io.reactivex.Observable;
@@ -91,7 +92,14 @@ public class MapPresenter implements MapContract.Presenter{
         compositeDisposable.add(disposable);
     }
 
-
+    @Override
+    public void publishCommand(Twist twist) {
+        if (serviceProxy != null) {
+            serviceProxy.publishCommand(twist);
+        }else {
+            Log.e("ControlPresenter", "RosConnectionService is null");
+        }
+    }
 
     @Override
     public void destroy() {

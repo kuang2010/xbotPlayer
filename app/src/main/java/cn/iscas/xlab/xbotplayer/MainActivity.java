@@ -15,7 +15,10 @@
  */
 package cn.iscas.xlab.xbotplayer;
 
+import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.design.widget.BottomNavigationView;
@@ -24,11 +27,10 @@ import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.KeyEvent;
+import android.view.Menu;
 import android.view.MenuItem;
-import android.widget.FrameLayout;
 import android.widget.Toast;
 
-import cn.iscas.xlab.xbotplayer.mvp.controller.ControlFragment;
 import cn.iscas.xlab.xbotplayer.mvp.rvizmap.MapFragment;
 
 /**
@@ -37,10 +39,9 @@ import cn.iscas.xlab.xbotplayer.mvp.rvizmap.MapFragment;
 
 public class MainActivity extends AppCompatActivity {
 
+    private static final String TAG = "MainActivity";
     private BottomNavigationView bottomNavigationView;
-    private FrameLayout container;
 
-    private ControlFragment controlFragment;
     private MapFragment mapFragment;
     private SimpleFragment tmpFragment;
     private long lastExitTime;
@@ -49,11 +50,11 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        log("onCreate()");
         setContentView(R.layout.activity_main);
-        container = (FrameLayout) findViewById(R.id.container);
+
         bottomNavigationView = (BottomNavigationView) findViewById(R.id.bottom_navigation);
 
-        controlFragment = new ControlFragment();
         mapFragment = new MapFragment();
         tmpFragment = SimpleFragment.getInstance("临时页面");
         fragmentManager = getSupportFragmentManager();
@@ -63,14 +64,43 @@ public class MainActivity extends AppCompatActivity {
 
         fragmentManager.beginTransaction()
                 .add(R.id.container, mapFragment)
-                .add(R.id.container, controlFragment)
                 .add(R.id.container, tmpFragment)
                 .commit();
         bottomNavigationView.setSelectedItemId(R.id.controller);
 
+        initConfiguration();
     }
 
+    private void initConfiguration() {
+        SharedPreferences sp = PreferenceManager.getDefaultSharedPreferences(this);
+        Config.ROS_SERVER_IP = sp.getString(getResources().getString(R.string.pref_key_ros_server_ip), "192.168.0.135");
+        Config.speed = sp.getInt(getResources().getString(R.string.pref_key_speed),30) / 100.0;
+        log("初始设置：" + Config.ROS_SERVER_IP + " ," + Config.speed);
+    }
 
+    @Override
+    protected void onStart() {
+        super.onStart();
+        log("onStart()");
+    }
+
+    @Override
+    protected void onResume() {
+        log("onResume()");
+        super.onResume();
+    }
+
+    @Override
+    protected void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+        log("onSaveInstanceState()");
+    }
+
+    @Override
+    protected void onRestoreInstanceState(Bundle savedInstanceState) {
+        super.onRestoreInstanceState(savedInstanceState);
+        log("onRestoreInstanceState()");
+    }
 
     private void initListeners() {
 
@@ -79,18 +109,9 @@ public class MainActivity extends AppCompatActivity {
             public boolean onNavigationItemSelected(@NonNull MenuItem item) {
                 switch (item.getItemId()) {
                     case R.id.controller:
-                        actionBar.setTitle("遥控器");
+                        actionBar.setTitle("控制界面");
                         mapFragment.hideLoading();
                         fragmentManager.beginTransaction()
-                                .hide(mapFragment)
-                                .hide(tmpFragment)
-                                .show(controlFragment)
-                                .commit();
-                        break;
-                    case R.id.map:
-                        actionBar.setTitle("2D地图");
-                        fragmentManager.beginTransaction()
-                                .hide(controlFragment)
                                 .hide(tmpFragment)
                                 .show(mapFragment)
                                 .commit();
@@ -99,7 +120,6 @@ public class MainActivity extends AppCompatActivity {
                         actionBar.setTitle("摄像头");
                         mapFragment.hideLoading();
                         fragmentManager.beginTransaction()
-                                .hide(controlFragment)
                                 .hide(mapFragment)
                                 .show(tmpFragment)
                                 .commit();
@@ -110,6 +130,25 @@ public class MainActivity extends AppCompatActivity {
                 return true;
             }
         });
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.menu_setting,menu);
+        return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+            case R.id.settings:
+                Intent intent = new Intent(this, SettingsActivity.class);
+                startActivity(intent);
+                break;
+            default:
+                break;
+        }
+        return true;
     }
 
     @Override
@@ -128,9 +167,12 @@ public class MainActivity extends AppCompatActivity {
 
     @Override
     protected void onDestroy() {
-        Log.i("MainActivity", "onDestroy()");
+        log("onDestroy()");
         super.onDestroy();
     }
 
+    private void log(String s) {
+        Log.i(TAG, TAG + " -- " + s);
+    }
 
 }

@@ -72,6 +72,12 @@ public class RockerView extends View{
 
     private int measureWidth, measureHeight;
 
+
+    //标志当前的摇杆是否可用，如果未连接Ros服务器，则不可用
+    private boolean isAvailable = false;
+
+    private Bitmap unavailableBitmap;
+
     public RockerView(Context context, @Nullable AttributeSet attrs) {
         super(context, attrs);
         initAttributeSet(context,attrs);
@@ -83,6 +89,8 @@ public class RockerView extends View{
         mRockerPaint.setAntiAlias(true);
         mCenterPoint = new Point();
         mRockerPosition = new Point();
+
+
 
     }
 
@@ -99,6 +107,16 @@ public class RockerView extends View{
             mRockerBitmap = drawableToBitmap(rockerBackground);
         }
 
+
+        Drawable unavailableDrawable = typedArray.getDrawable(R.styleable.RockerView_unavailableDrawable);
+        if (unavailableDrawable instanceof GradientDrawable) {
+            unavailableBitmap = drawableToBitmap(unavailableDrawable);
+        }
+
+//        BitmapFactory.Options op = new BitmapFactory.Options();
+//        op.outWidth= rockerBackground.getIntrinsicWidth();
+//        op.outHeight = rockerBackground.getIntrinsicHeight();
+//        unavailableBitmap = BitmapFactory.decodeResource(getResources(), R.drawable.rocker_unavailable,op);
         mRockerRadius = typedArray.getDimensionPixelSize(R.styleable.RockerView_rockerRadius, DEFAULT_ROCKER_RADIUS);
 
         typedArray.recycle();
@@ -146,11 +164,23 @@ public class RockerView extends View{
             mRockerPosition.set(mCenterPoint.x, mCenterPoint.y);
         }
 
-        //画可移动区域
-        Rect src = new Rect(0, 0, mAreaBitmap.getWidth(), mAreaBitmap.getHeight());
-        Rect dst = new Rect(mCenterPoint.x - mAreaRadius, mCenterPoint.y - mAreaRadius, mCenterPoint.x + mAreaRadius, mCenterPoint.y + mAreaRadius);
-        //从原位图src中挖取一块dst
-        canvas.drawBitmap(mAreaBitmap, src, dst, mAreaBackgroundPaint);
+        if (isAvailable) {
+            //画可移动区域
+            Rect src = new Rect(0, 0, mAreaBitmap.getWidth(), mAreaBitmap.getHeight());
+            Rect dst = new Rect(mCenterPoint.x - mAreaRadius, mCenterPoint.y - mAreaRadius, mCenterPoint.x + mAreaRadius, mCenterPoint.y + mAreaRadius);
+            //从原位图src中挖取一块dst
+            canvas.drawBitmap(mAreaBitmap, src, dst, mAreaBackgroundPaint);
+        } else {
+            if (unavailableBitmap == null) {
+                Log.e(TAG, "Bitmap is null----------------");
+            } else {
+                Rect src = new Rect(0, 0, unavailableBitmap.getWidth(), unavailableBitmap.getHeight());
+                Rect dst = new Rect(mCenterPoint.x - mAreaRadius, mCenterPoint.y - mAreaRadius, mCenterPoint.x + mAreaRadius, mCenterPoint.y + mAreaRadius);
+                //从原位图src中挖取一块dst
+                canvas.drawBitmap(mAreaBitmap, src, dst, mAreaBackgroundPaint);
+            }
+
+        }
 
 
         //画摇杆区域
@@ -271,6 +301,11 @@ public class RockerView extends View{
 
     public void setOnDirectionChangeListener(OnDirectionChangeListener listener) {
         this.mDirectionListener = listener;
+    }
+
+    public void setAvailable(boolean avaliable) {
+        this.isAvailable = avaliable;
+        postInvalidate();
     }
 
     private Bitmap drawableToBitmap(Drawable drawable) {

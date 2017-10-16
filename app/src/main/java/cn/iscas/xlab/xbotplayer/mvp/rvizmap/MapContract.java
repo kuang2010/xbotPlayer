@@ -5,6 +5,7 @@ import android.os.Binder;
 import android.support.annotation.NonNull;
 import android.util.Size;
 
+import cn.iscas.xlab.xbotplayer.entity.Twist;
 import cn.iscas.xlab.xbotplayer.mvp.BasePresenter;
 import cn.iscas.xlab.xbotplayer.mvp.BaseView;
 
@@ -25,6 +26,8 @@ public interface MapContract {
         void subscribeMapData();
 
         void unsubscribeMapData();
+
+        void publishCommand(Twist twist);
     }
 
     interface View extends BaseView<Presenter> {

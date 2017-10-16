@@ -79,6 +79,8 @@ public class ControlFragment extends Fragment implements ControlContract.View{
         rockerView = (RockerView) view.findViewById(R.id.rocker_view);
 
         initView();
+
+        initBroadcastReceiver();
         return view;
     }
 
@@ -158,7 +160,7 @@ public class ControlFragment extends Fragment implements ControlContract.View{
     public void onStart() {
         super.onStart();
         log("onStart()");
-        initBroadcastReceiver();
+
     }
 
     @Override

@@ -74,14 +74,16 @@ public class MapView extends View implements View.OnTouchListener{
         int heightMode = MeasureSpec.getMode(heightMeasureSpec);
         int heightSize = MeasureSpec.getSize(heightMeasureSpec);
 
+
         if (widthMode == MeasureSpec.EXACTLY && heightMode == MeasureSpec.EXACTLY) {
             WindowManager wm = (WindowManager) getContext().getSystemService(Context.WINDOW_SERVICE);
             DisplayMetrics metrics = new DisplayMetrics();
             wm.getDefaultDisplay().getMetrics(metrics);
 
+
             int screenWidth = metrics.widthPixels;
             int screenHeight = metrics.heightPixels;
-            log("ScreenSize:" + screenWidth + "X" + screenHeight);
+            log("ScreenSize:" + screenWidth + "X" + screenHeight+",DPI:"+metrics.densityDpi);
 
             if (widthSize < screenWidth && heightSize < screenWidth) {
                 //设置成正方形
@@ -93,9 +95,8 @@ public class MapView extends View implements View.OnTouchListener{
             }
             width = widthSize;
             height = heightSize;
-//            log("width:"+width);
-//            log("height:"+height);
-
+            log("width:"+width);
+            log("height:"+height);
         }
         setMeasuredDimension(widthSize, heightSize);
 

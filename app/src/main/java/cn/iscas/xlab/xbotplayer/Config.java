@@ -27,4 +27,6 @@ public class Config {
 
     public static String ROS_SERVER_PORT = "9090";
 
+    public static double speed = 0.3;
+
 }
