@@ -138,11 +138,11 @@ public class MapFragment extends Fragment implements MapContract.View{
                         presenter.subscribeMapData();
                     }
                 } else {
+                    presenter.unsubscribeMapData();
+                    presenter.abortLoadMap();
                     isMapOpened = false;
                     toggleMap.setText("显示地图");
                     refreshLayout.setRefreshing(false);
-                    presenter.abortLoadMap();
-                    presenter.unsubscribeMapData();
                     mapView.updateMap(null);
                 }
             }

@@ -74,7 +74,9 @@ public class MapPresenter implements MapContract.Presenter{
                     @Override
                     public void onNext(@io.reactivex.annotations.NonNull Bitmap bitmap) {
                         log("onNext()");
-                        view.updateMap(bitmap);
+                        if (!isDisposed()) {
+                            view.updateMap(bitmap);
+                        }
                         view.hideLoading();
                     }
 

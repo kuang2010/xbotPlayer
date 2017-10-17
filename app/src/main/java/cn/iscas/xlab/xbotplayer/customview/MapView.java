@@ -193,6 +193,8 @@ public class MapView extends View implements View.OnTouchListener{
                 break;
             case MotionEvent.ACTION_POINTER_UP:
                 oldAngle = newAngle;
+                mode = MODE_NONE;
+
                 break;
             case MotionEvent.ACTION_UP:
                 mode = MODE_NONE;
