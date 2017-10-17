@@ -83,7 +83,6 @@ public class MapFragment extends Fragment implements MapContract.View{
     @Override
     public void onStart() {
         super.onStart();
-        initBroadcastReceiver();
     }
 
     @Override
@@ -96,6 +95,7 @@ public class MapFragment extends Fragment implements MapContract.View{
     public void onActivityCreated(@Nullable Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
         log("onActivityCreate()");
+        initBroadcastReceiver();
     }
 
     @Override
@@ -262,9 +262,11 @@ public class MapFragment extends Fragment implements MapContract.View{
 
     @Override
     public void onDestroy() {
+        log("onDestroy");
         if (presenter != null) {
             presenter.destroy();
         }
+        getActivity().unregisterReceiver(receiver);
         super.onDestroy();
     }
 

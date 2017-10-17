@@ -158,12 +158,12 @@ public class MapView extends View implements View.OnTouchListener{
 
 //                    log("newDistance:" + newDistance + ",oldDistance:" + oldDistance);
 //                    log("newAngle:" + newAngle + ",oldAngle:" + oldAngle);
-                    if (Math.abs(newAngle - oldAngle) > 25 ) {
+                    if (Math.abs(newAngle - oldAngle) > 10 ) {
                         rotateAngle = (float) (newAngle - oldAngle);
                         if (rotateAngle < 0||rotateAngle>270) {
-                            rotateAngle = 3;
+                            rotateAngle = 2;
                         } else {
-                            rotateAngle = -3;
+                            rotateAngle = -2;
                         }
                         mode = MODE_ROTATE;
 //                        log("-------rotate:" + rotateAngle);
@@ -172,11 +172,11 @@ public class MapView extends View implements View.OnTouchListener{
 
                         double delta = newDistance - oldDistance;
                         if (delta > 0) {
-                            scaleX = 1.05F;
-                            scaleY = 1.05F;
+                            scaleX = 1.03F;
+                            scaleY = 1.03F;
                         } else {
-                            scaleX = 0.95F;
-                            scaleY = 0.95F;
+                            scaleX = 0.97F;
+                            scaleY = 0.97F;
 
                         }
                         mode = MODE_SCALE;

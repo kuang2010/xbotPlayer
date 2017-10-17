@@ -235,6 +235,7 @@ public class RosConnectionService extends Service{
     public void onDestroy() {
         Log.i(TAG, "RosConnService--onDestroy()");
         EventBus.getDefault().unregister(this);
+        rosConnectionTimer.cancel();
         super.onDestroy();
     }
 
