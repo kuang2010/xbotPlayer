@@ -34,12 +34,12 @@ import java.util.TimerTask;
 
 import cn.iscas.xlab.xbotplayer.App;
 import cn.iscas.xlab.xbotplayer.Config;
+import cn.iscas.xlab.xbotplayer.Constant;
 import cn.iscas.xlab.xbotplayer.R;
 import cn.iscas.xlab.xbotplayer.RosConnectionReceiver;
 import cn.iscas.xlab.xbotplayer.customview.MapView;
 import cn.iscas.xlab.xbotplayer.customview.RockerView;
 import cn.iscas.xlab.xbotplayer.entity.Twist;
-import cn.iscas.xlab.xbotplayer.mvp.controller.ControlContract;
 
 /**
  * Created by lisongting on 2017/10/9.
@@ -240,7 +240,7 @@ public class MapFragment extends Fragment implements MapContract.View{
             }
         });
 
-        IntentFilter filter = new IntentFilter(ControlContract.ROS_RECEIVER_INTENTFILTER);
+        IntentFilter filter = new IntentFilter(Constant.ROS_RECEIVER_INTENTFILTER);
         getActivity().registerReceiver(receiver,filter);
 
     }

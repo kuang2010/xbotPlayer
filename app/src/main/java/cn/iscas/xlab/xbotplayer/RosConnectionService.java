@@ -32,7 +32,6 @@ import java.util.TimerTask;
 
 import cn.iscas.xlab.xbotplayer.entity.PublishEvent;
 import cn.iscas.xlab.xbotplayer.entity.Twist;
-import cn.iscas.xlab.xbotplayer.mvp.controller.ControlContract;
 import cn.iscas.xlab.xbotplayer.ros.ROSClient;
 import cn.iscas.xlab.xbotplayer.ros.rosbridge.ROSBridgeClient;
 import de.greenrobot.event.EventBus;
@@ -154,9 +153,9 @@ public class RosConnectionService extends Service{
                         @Override
                         public void onDisconnect(boolean normal, String reason, int code) {
                             Log.v(TAG, "Ros ConnectionStatusListener--disconnect");
-                            Intent broadcastIntent = new Intent(ControlContract.ROS_RECEIVER_INTENTFILTER);
+                            Intent broadcastIntent = new Intent(Constant.ROS_RECEIVER_INTENTFILTER);
                             Bundle data = new Bundle();
-                            data.putInt("ros_conn_status", ControlContract.CONN_ROS_SERVER_ERROR);
+                            data.putInt("ros_conn_status", Constant.CONN_ROS_SERVER_ERROR);
                             broadcastIntent.putExtras(data);
                             sendBroadcast(broadcastIntent);
                             isConnected = false;
@@ -169,14 +168,14 @@ public class RosConnectionService extends Service{
                         }
                     });
                     isConnected = conneSucc;
-                    Intent broadcastIntent = new Intent(ControlContract.ROS_RECEIVER_INTENTFILTER);
+                    Intent broadcastIntent = new Intent(Constant.ROS_RECEIVER_INTENTFILTER);
                     Bundle data = new Bundle();
                     if (!isConnected) {
-                        data.putInt(Constant.KEY_BROADCAST_ROS_CONN, ControlContract.CONN_ROS_SERVER_ERROR);
+                        data.putInt(Constant.KEY_BROADCAST_ROS_CONN, Constant.CONN_ROS_SERVER_ERROR);
                         broadcastIntent.putExtras(data);
                         sendBroadcast(broadcastIntent);
                     } else{
-                        data.putInt(Constant.KEY_BROADCAST_ROS_CONN, ControlContract.CONN_ROS_SERVER_SUCCESS);
+                        data.putInt(Constant.KEY_BROADCAST_ROS_CONN, Constant.CONN_ROS_SERVER_SUCCESS);
                         broadcastIntent.putExtras(data);
                         try {
                             Thread.sleep(1000);

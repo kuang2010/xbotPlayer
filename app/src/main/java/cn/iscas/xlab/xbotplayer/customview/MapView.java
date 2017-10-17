@@ -95,8 +95,8 @@ public class MapView extends View implements View.OnTouchListener{
             }
             width = widthSize;
             height = heightSize;
-            log("width:"+width);
-            log("height:"+height);
+//            log("width:"+width);
+//            log("height:"+height);
         }
         setMeasuredDimension(widthSize, heightSize);
 
