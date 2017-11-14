@@ -31,6 +31,7 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.Toast;
 
+import cn.iscas.xlab.xbotplayer.mvp.cemera.CameraFragment;
 import cn.iscas.xlab.xbotplayer.mvp.rvizmap.MapFragment;
 
 /**
@@ -43,7 +44,7 @@ public class MainActivity extends AppCompatActivity {
     private BottomNavigationView bottomNavigationView;
 
     private MapFragment mapFragment;
-    private SimpleFragment tmpFragment;
+    private CameraFragment cameraFragment;
     private long lastExitTime;
     private FragmentManager fragmentManager;
     private ActionBar actionBar;
@@ -56,7 +57,7 @@ public class MainActivity extends AppCompatActivity {
         bottomNavigationView = (BottomNavigationView) findViewById(R.id.bottom_navigation);
 
         mapFragment = new MapFragment();
-        tmpFragment = SimpleFragment.getInstance("临时页面");
+        cameraFragment = new CameraFragment();
         fragmentManager = getSupportFragmentManager();
         actionBar = getSupportActionBar();
 
@@ -64,7 +65,7 @@ public class MainActivity extends AppCompatActivity {
 
         fragmentManager.beginTransaction()
                 .add(R.id.container, mapFragment)
-                .add(R.id.container, tmpFragment)
+                .add(R.id.container, cameraFragment)
                 .commit();
         bottomNavigationView.setSelectedItemId(R.id.controller);
 
@@ -92,14 +93,14 @@ public class MainActivity extends AppCompatActivity {
 
     @Override
     protected void onSaveInstanceState(Bundle outState) {
-        super.onSaveInstanceState(outState);
         log("onSaveInstanceState()");
+        super.onSaveInstanceState(outState);
     }
 
     @Override
     protected void onRestoreInstanceState(Bundle savedInstanceState) {
-        super.onRestoreInstanceState(savedInstanceState);
         log("onRestoreInstanceState()");
+        super.onRestoreInstanceState(savedInstanceState);
     }
 
     private void initListeners() {
@@ -112,7 +113,7 @@ public class MainActivity extends AppCompatActivity {
                         actionBar.setTitle("控制界面");
                         mapFragment.hideLoading();
                         fragmentManager.beginTransaction()
-                                .hide(tmpFragment)
+                                .hide(cameraFragment)
                                 .show(mapFragment)
                                 .commit();
                         break;
@@ -121,7 +122,7 @@ public class MainActivity extends AppCompatActivity {
                         mapFragment.hideLoading();
                         fragmentManager.beginTransaction()
                                 .hide(mapFragment)
-                                .show(tmpFragment)
+                                .show(cameraFragment)
                                 .commit();
                         break;
                     default:

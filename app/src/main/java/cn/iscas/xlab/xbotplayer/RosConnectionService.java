@@ -221,11 +221,14 @@ public class RosConnectionService extends Service{
         Log.v(TAG, "onEvent:" + event.msg);
         String response = event.msg;
         try {
-            JSONObject object = new JSONObject(response);
-            if (topicName.equals(Constant.SUBSCRIBE_TOPIC_MAP) && response.length()>100) {
-                EventBus.getDefault().post(object.get("data"));
+            JSONObject object = new JSONObject();
+            object.put("topicName", topicName);
+            object.put("data", new JSONObject(response).get("data"));
+            if (response.length()>100) {
+                EventBus.getDefault().post(object.toString());
             }
         } catch (JSONException e) {
+
         }
 
     }

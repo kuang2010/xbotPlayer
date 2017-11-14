@@ -7,6 +7,9 @@ import android.support.annotation.NonNull;
 import android.util.Log;
 import android.util.Size;
 
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import cn.iscas.xlab.xbotplayer.Constant;
 import cn.iscas.xlab.xbotplayer.RosConnectionService;
 import cn.iscas.xlab.xbotplayer.entity.Twist;
@@ -59,8 +62,16 @@ public class MapPresenter implements MapContract.Presenter{
     }
 
 
-    public void onEvent(final String base64Map) {
+    public void onEvent(final String jsonString) throws JSONException{
+
         mapSize = view.getMapRealSize();
+
+        JSONObject json = new JSONObject(jsonString);
+        if (!json.get("topicName").equals(Constant.SUBSCRIBE_TOPIC_MAP)) {
+            return;
+        }
+        final String base64Map = json.getString("data");
+
         Disposable disposable = Observable.just(base64Map)
                 .subscribeOn(Schedulers.computation())
                 .map(new Function<String, Bitmap>() {
