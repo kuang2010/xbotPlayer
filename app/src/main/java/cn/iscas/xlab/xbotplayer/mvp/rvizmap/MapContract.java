@@ -27,6 +27,10 @@ public interface MapContract {
 
         void unsubscribeMapData();
 
+        /**
+         * 控制机器人移动
+         * @param twist 控制信息
+         */
         void publishCommand(Twist twist);
     }
 
