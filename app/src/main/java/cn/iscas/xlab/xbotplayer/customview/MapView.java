@@ -208,6 +208,8 @@ public class MapView extends View implements View.OnTouchListener{
                 translationY = 0;
                 getParent().requestDisallowInterceptTouchEvent(false);
                 break;
+            default:
+                break;
         }
         return true;
     }

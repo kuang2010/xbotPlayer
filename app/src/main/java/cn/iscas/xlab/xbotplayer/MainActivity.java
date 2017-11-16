@@ -32,6 +32,7 @@ import android.view.MenuItem;
 import android.widget.Toast;
 
 import cn.iscas.xlab.xbotplayer.mvp.cemera.CameraFragment;
+import cn.iscas.xlab.xbotplayer.mvp.robot_state.RobotStateFragment;
 import cn.iscas.xlab.xbotplayer.mvp.rvizmap.MapFragment;
 
 /**
@@ -45,6 +46,7 @@ public class MainActivity extends AppCompatActivity {
 
     private MapFragment mapFragment;
     private CameraFragment cameraFragment;
+    private RobotStateFragment robotStateFragment;
     private long lastExitTime;
     private FragmentManager fragmentManager;
     private ActionBar actionBar;
@@ -58,16 +60,19 @@ public class MainActivity extends AppCompatActivity {
 
         mapFragment = new MapFragment();
         cameraFragment = new CameraFragment();
+        robotStateFragment = new RobotStateFragment();
         fragmentManager = getSupportFragmentManager();
         actionBar = getSupportActionBar();
 
         initListeners();
 
         fragmentManager.beginTransaction()
-                .add(R.id.container, mapFragment)
-                .add(R.id.container, cameraFragment)
+                .add(R.id.container,robotStateFragment,"robotStateFragment")
+                .add(R.id.container, mapFragment,"mapFragment")
+                .add(R.id.container, cameraFragment,"cameraFragment")
                 .commit();
-        bottomNavigationView.setSelectedItemId(R.id.controller);
+//        bottomNavigationView.setSelectedItemId(R.id.controller);
+        bottomNavigationView.setSelectedItemId(R.id.robot_state);
 
         initConfiguration();
     }
@@ -109,11 +114,21 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public boolean onNavigationItemSelected(@NonNull MenuItem item) {
                 switch (item.getItemId()) {
+                    case R.id.robot_state:
+                        actionBar.setTitle("Xbot状态");
+                        mapFragment.hideLoading();
+                        fragmentManager.beginTransaction()
+                                .hide(cameraFragment)
+                                .hide(mapFragment)
+                                .show(robotStateFragment)
+                                .commit();
+                        break;
                     case R.id.controller:
                         actionBar.setTitle("控制界面");
                         mapFragment.hideLoading();
                         fragmentManager.beginTransaction()
                                 .hide(cameraFragment)
+                                .hide(robotStateFragment)
                                 .show(mapFragment)
                                 .commit();
                         break;
@@ -122,6 +137,7 @@ public class MainActivity extends AppCompatActivity {
                         mapFragment.hideLoading();
                         fragmentManager.beginTransaction()
                                 .hide(mapFragment)
+                                .hide(robotStateFragment)
                                 .show(cameraFragment)
                                 .commit();
                         break;
