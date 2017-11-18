@@ -42,6 +42,8 @@ import cn.iscas.xlab.xbotplayer.mvp.rvizmap.MapFragment;
 public class MainActivity extends AppCompatActivity {
 
     private static final String TAG = "MainActivity";
+    private static final String KEY_NAV_ITEM = "current_navigation_item";
+
     private BottomNavigationView bottomNavigationView;
 
     private MapFragment mapFragment;
@@ -50,6 +52,8 @@ public class MainActivity extends AppCompatActivity {
     private long lastExitTime;
     private FragmentManager fragmentManager;
     private ActionBar actionBar;
+    private int selectedNavItem = 0;
+
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -58,23 +62,45 @@ public class MainActivity extends AppCompatActivity {
 
         bottomNavigationView = (BottomNavigationView) findViewById(R.id.bottom_navigation);
 
-        mapFragment = new MapFragment();
-        cameraFragment = new CameraFragment();
-        robotStateFragment = new RobotStateFragment();
-        fragmentManager = getSupportFragmentManager();
-        actionBar = getSupportActionBar();
-
         initListeners();
-
-        fragmentManager.beginTransaction()
-                .add(R.id.container,robotStateFragment,"robotStateFragment")
-                .add(R.id.container, mapFragment,"mapFragment")
-                .add(R.id.container, cameraFragment,"cameraFragment")
-                .commit();
-//        bottomNavigationView.setSelectedItemId(R.id.controller);
-        bottomNavigationView.setSelectedItemId(R.id.robot_state);
-
+        actionBar = getSupportActionBar();
         initConfiguration();
+
+        if (savedInstanceState == null) {
+            log("savedInstanceState is null");
+            fragmentManager = getSupportFragmentManager();
+            mapFragment = new MapFragment();
+            cameraFragment = new CameraFragment();
+            robotStateFragment = new RobotStateFragment();
+            fragmentManager.beginTransaction()
+                    .add(R.id.container, robotStateFragment, robotStateFragment.getClass().getSimpleName())
+                    .add(R.id.container, mapFragment, mapFragment.getClass().getSimpleName())
+                    .add(R.id.container, cameraFragment, cameraFragment.getClass().getSimpleName())
+                    .commit();
+            bottomNavigationView.setSelectedItemId(R.id.robot_state);
+        } else {
+            log("restore savedInstanceState ");
+            fragmentManager = getSupportFragmentManager();
+            robotStateFragment = (RobotStateFragment) fragmentManager.getFragment(savedInstanceState, robotStateFragment.getClass().getSimpleName());
+            mapFragment = (MapFragment) fragmentManager.getFragment(savedInstanceState, mapFragment.getClass().getSimpleName());
+            cameraFragment = (CameraFragment) fragmentManager.getFragment(savedInstanceState, cameraFragment.getClass().getSimpleName());
+            selectedNavItem = savedInstanceState.getInt(KEY_NAV_ITEM);
+            switch (selectedNavItem) {
+                case 0:
+                    bottomNavigationView.setSelectedItemId(R.id.robot_state);
+                    break;
+                case 1:
+                    bottomNavigationView.setSelectedItemId(R.id.controller);
+                    break;
+                case 2:
+                    bottomNavigationView.setSelectedItemId(R.id.camera);
+                    break;
+                default:
+                    break;
+            }
+        }
+
+
     }
 
     private void initConfiguration() {
@@ -96,23 +122,13 @@ public class MainActivity extends AppCompatActivity {
         super.onResume();
     }
 
-    @Override
-    protected void onSaveInstanceState(Bundle outState) {
-        log("onSaveInstanceState()");
-        super.onSaveInstanceState(outState);
-    }
 
-    @Override
-    protected void onRestoreInstanceState(Bundle savedInstanceState) {
-        log("onRestoreInstanceState()");
-        super.onRestoreInstanceState(savedInstanceState);
-    }
 
     private void initListeners() {
-
         bottomNavigationView.setOnNavigationItemSelectedListener(new BottomNavigationView.OnNavigationItemSelectedListener() {
             @Override
             public boolean onNavigationItemSelected(@NonNull MenuItem item) {
+                log("onNavigationItemSelected():"+item.getItemId());
                 switch (item.getItemId()) {
                     case R.id.robot_state:
                         actionBar.setTitle("Xbot状态");
@@ -122,6 +138,7 @@ public class MainActivity extends AppCompatActivity {
                                 .hide(mapFragment)
                                 .show(robotStateFragment)
                                 .commit();
+                        selectedNavItem = 0;
                         break;
                     case R.id.controller:
                         actionBar.setTitle("控制界面");
@@ -131,6 +148,7 @@ public class MainActivity extends AppCompatActivity {
                                 .hide(robotStateFragment)
                                 .show(mapFragment)
                                 .commit();
+                        selectedNavItem = 1;
                         break;
                     case R.id.camera:
                         actionBar.setTitle("摄像头");
@@ -140,6 +158,7 @@ public class MainActivity extends AppCompatActivity {
                                 .hide(robotStateFragment)
                                 .show(cameraFragment)
                                 .commit();
+                        selectedNavItem = 2;
                         break;
                     default:
                         break;
@@ -147,6 +166,29 @@ public class MainActivity extends AppCompatActivity {
                 return true;
             }
         });
+    }
+
+    @Override
+    protected void onSaveInstanceState(Bundle outState) {
+        log("onSaveInstanceState()");
+        super.onSaveInstanceState(outState);
+        if (robotStateFragment.isAdded()) {
+            fragmentManager.putFragment(outState, robotStateFragment.getClass().getSimpleName(), robotStateFragment);
+        }
+        if (mapFragment.isAdded()) {
+            fragmentManager.putFragment(outState, mapFragment.getClass().getSimpleName(), mapFragment);
+        }
+        if (cameraFragment.isAdded()) {
+            fragmentManager.putFragment(outState, cameraFragment.getClass().getSimpleName(), cameraFragment);
+        }
+        outState.putInt(KEY_NAV_ITEM, selectedNavItem);
+
+    }
+
+    @Override
+    protected void onRestoreInstanceState(Bundle savedInstanceState) {
+        log("onRestoreInstanceState()");
+        super.onRestoreInstanceState(savedInstanceState);
     }
 
     @Override

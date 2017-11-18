@@ -42,8 +42,10 @@
     </declare-styleable>
 
     <declare-styleable name="PercentCircleView" >
-        <attr name="inner_radius" format="dimension|reference" />
-        <attr name="inner_color" format="color|reference" />
+        <attr name="radius" format="dimension|reference" />
+        <attr name="normal_state_color" format="color|reference" />
+        <attr name="mid_state_color" format="color|reference" />
+        <attr name="low_state_color" format="color|reference" />
         <attr name="stroke_size" format="dimension|reference" />
         <attr name="stroke_color" format="color|reference" />
         <attr name="text_size" format="dimension|reference" />

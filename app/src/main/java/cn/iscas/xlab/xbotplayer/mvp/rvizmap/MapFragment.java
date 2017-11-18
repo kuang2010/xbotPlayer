@@ -277,6 +277,7 @@ public class MapFragment extends Fragment implements MapContract.View{
 
     @Override
     public void onHiddenChanged(boolean hidden) {
+        log("idHidden:" + hidden);
         super.onHiddenChanged(hidden);
         if (!hidden) {
             if (Config.isRosServerConnected) {

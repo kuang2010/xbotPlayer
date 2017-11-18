@@ -19,7 +19,7 @@ import cn.iscas.xlab.xbotplayer.entity.RobotState;
  */
 
 public class RobotStateFragment extends Fragment implements RobotStateContract.View {
-    private static final String TAG = "RobotStateFragment";
+    private static final String TAG = RobotStateFragment.class.getSimpleName();
 
     private PercentCircleView batteryView;
     private CustomSeekBar cloudDegreeSeekBar;
@@ -68,12 +68,21 @@ public class RobotStateFragment extends Fragment implements RobotStateContract.V
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
+        log("onCreate()");
         super.onCreate(savedInstanceState);
     }
 
     @Override
     public void onResume() {
+        log("onResume()");
         super.onResume();
+    }
+
+    @Override
+    public void onHiddenChanged(boolean hidden) {
+        log("isHidden:" + hidden);
+        super.onHiddenChanged(hidden);
+
     }
 
     @Override
@@ -83,7 +92,7 @@ public class RobotStateFragment extends Fragment implements RobotStateContract.V
 
     @Override
     public void setPresenter(RobotStateContract.Presenter presenter) {
-
+        this.presenter = presenter;
     }
 
     @Override

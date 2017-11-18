@@ -19,10 +19,12 @@
         android:layout_height="wrap_content"
         android:layout_centerHorizontal="true"
         android:layout_below="@id/battery_txt"
-        app:inner_radius="50dp"
-        app:inner_color="#e0e0e0"
-        app:stroke_size="20dp"
-        app:stroke_color="#8bc34a"
+        app:radius="50dp"
+        app:normal_state_color="#7cb342"
+        app:mid_state_color="#ff8f00"
+        app:low_state_color="#b71c1c"
+        app:stroke_size="2dp"
+        app:stroke_color="#00bcd4"
         app:text_size="25sp"
         app:text_color="#ab47bc"/>
 
