@@ -25,7 +25,7 @@ public interface MapContract {
 
         void subscribeMapData();
 
-        void unsubscribeMapData();
+        void unSubscribeMapData();
 
         /**
          * 控制机器人移动

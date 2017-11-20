@@ -324,15 +324,12 @@ public class CustomSeekBar extends View {
 
             }
         }
-//        log("track center :(" + centerX + "," + centerY + ")");
-//        log("track rectangle:" + trackLeft+ "," + trackTop + "," + trackRight + "," + trackBottom);
     }
 
     @Override
     public boolean onTouchEvent(MotionEvent event) {
-//        log("onTouchEvent xy:" + event.getX() +","+ event.getY());
-        log("isIndicatorTouched :" + isIndicatorTouched(event));
-        log("isTrackTouched:" + isTrackTouched(event));
+//        log("isIndicatorTouched :" + isIndicatorTouched(event));
+//        log("isTrackTouched:" + isTrackTouched(event));
         event.getAction();
         int action = event.getAction();
         switch (action) {
@@ -448,7 +445,7 @@ public class CustomSeekBar extends View {
             public void onAnimationUpdate(ValueAnimator animation) {
                 float value = (float) animation.getAnimatedValue();
                 progress = value;
-                invalidate();
+                postInvalidate();
             }
         });
         animator.setDuration(400);
@@ -489,7 +486,7 @@ public class CustomSeekBar extends View {
     }
 
     private void log(String s) {
-        Log.i("tag,","SeekBar -- "+ s);
+        Log.i(CustomSeekBar.class.getSimpleName(),"SeekBar -- "+ s);
     }
 
 

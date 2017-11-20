@@ -1,6 +1,5 @@
 package cn.iscas.xlab.xbotplayer.mvp.rvizmap;
 
-import android.content.Context;
 import android.graphics.Bitmap;
 import android.os.Binder;
 import android.support.annotation.NonNull;
@@ -30,14 +29,12 @@ import io.reactivex.schedulers.Schedulers;
 public class MapPresenter implements MapContract.Presenter{
 
     private static final String TAG = "MapPresenter";
-    private Context context;
     private MapContract.View view ;
     private RosConnectionService.ServiceBinder serviceProxy;
     private CompositeDisposable compositeDisposable;
     private Size mapSize;
 
-    public MapPresenter(Context context,MapContract.View view) {
-        this.context = context;
+    public MapPresenter(MapContract.View view) {
         this.view = view;
     }
 
@@ -137,7 +134,7 @@ public class MapPresenter implements MapContract.Presenter{
     }
 
     @Override
-    public void unsubscribeMapData() {
+    public void unSubscribeMapData() {
         if (serviceProxy != null) {
             serviceProxy.manipulateTopic(Constant.SUBSCRIBE_TOPIC_MAP,false);
         } else {

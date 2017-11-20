@@ -10,7 +10,7 @@ public class Constant {
 
     public static final String SUBSCRIBE_TOPIC_MAP = "/base64_img/map_img";
 
-    public static final String PUBLISH_TOPIC_CONTROL_COMMAND = "/cmd_vel_mux/input/teleop";
+    public static final String PUBLISH_TOPIC_CMD_MOVE = "/cmd_vel_mux/input/teleop";
 
     public static final String PUBLISH_TOPIC_CMD_LIFT = "/mobile_base/commands/lift";
 

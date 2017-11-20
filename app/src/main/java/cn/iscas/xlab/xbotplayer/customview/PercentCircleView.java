@@ -49,6 +49,7 @@ public class PercentCircleView extends View {
     //用于裁剪的path
     private Path clipPath;
 
+    private ValueAnimator valueAnimator;
     public PercentCircleView(Context context) {
         this(context, null);
     }
@@ -264,7 +265,7 @@ public class PercentCircleView extends View {
     }
 
     public void startAnim() {
-        ValueAnimator valueAnimator = ValueAnimator.ofFloat(0, peakWidth*2 );
+        valueAnimator = ValueAnimator.ofFloat(0, peakWidth*2 );
         valueAnimator.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
             @Override
             public void onAnimationUpdate(ValueAnimator animation) {
@@ -277,6 +278,13 @@ public class PercentCircleView extends View {
         valueAnimator.setRepeatMode(ValueAnimator.RESTART);
         valueAnimator.setInterpolator(new LinearInterpolator());
         valueAnimator.start();
+    }
+
+    public void stopAnimation() {
+        if (valueAnimator != null) {
+            valueAnimator.pause();
+            valueAnimator.cancel();
+        }
     }
 
     public void setPercent(int p) {

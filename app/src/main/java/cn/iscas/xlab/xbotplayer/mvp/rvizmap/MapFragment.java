@@ -138,7 +138,7 @@ public class MapFragment extends Fragment implements MapContract.View{
                         presenter.subscribeMapData();
                     }
                 } else {
-                    presenter.unsubscribeMapData();
+                    presenter.unSubscribeMapData();
                     presenter.abortLoadMap();
                     isMapOpened = false;
                     toggleMap.setText("显示地图");
@@ -226,7 +226,7 @@ public class MapFragment extends Fragment implements MapContract.View{
                     rockerView.setAvailable(true);
                     App app = (App) (getActivity().getApplication());
                     if (presenter == null) {
-                        presenter = new MapPresenter(getContext(),MapFragment.this);
+                        presenter = new MapPresenter(MapFragment.this);
                         presenter.start();
                     }
                     presenter.setServiceProxy(app.getRosServiceProxy());
@@ -279,15 +279,20 @@ public class MapFragment extends Fragment implements MapContract.View{
     public void onHiddenChanged(boolean hidden) {
         log("idHidden:" + hidden);
         super.onHiddenChanged(hidden);
-        if (!hidden) {
+        if (!hidden ) {
             if (Config.isRosServerConnected) {
                 App app = (App) (getActivity().getApplication());
                 if (presenter == null) {
-                    presenter = new MapPresenter(getContext(), this);
+                    presenter = new MapPresenter(this);
                     presenter.setServiceProxy(app.getRosServiceProxy());
                     presenter.start();
                 }
+                rockerView.setAvailable(true);
+            } else {
+                rockerView.setAvailable(false);
+
             }
+
         }
     }
 

@@ -31,6 +31,7 @@ import java.util.Timer;
 import java.util.TimerTask;
 
 import cn.iscas.xlab.xbotplayer.entity.PublishEvent;
+import cn.iscas.xlab.xbotplayer.entity.RobotState;
 import cn.iscas.xlab.xbotplayer.entity.Twist;
 import cn.iscas.xlab.xbotplayer.ros.ROSClient;
 import cn.iscas.xlab.xbotplayer.ros.rosbridge.ROSBridgeClient;
@@ -53,15 +54,16 @@ public class RosConnectionService extends Service{
     private Timer rosConnectionTimer;
     private TimerTask connectionTask;
 
-    private JSONArray dataArray;
-    private float lastLocationX,lastLocationY;
-    private long lastPublishTopicMillis;
 
     public class ServiceBinder extends Binder {
         public boolean isConnected(){
             return isConnected;
         }
 
+        /**
+         * 发布message控制机器人移动，消息类型为twist
+         * @param twist 消息类型
+         */
         public void publishCommand(Twist twist) {
             if (isConnected()) {
                 JSONObject body = new JSONObject();
@@ -80,7 +82,7 @@ public class RosConnectionService extends Service{
                     jsonArray.put(angularMsg);
 
                     body.put("op", "publish");
-                    body.put("topic", Constant.PUBLISH_TOPIC_CONTROL_COMMAND);
+                    body.put("topic", Constant.PUBLISH_TOPIC_CMD_MOVE);
 
                     JSONObject message = new JSONObject();
                     message.put("angular", angularMsg);
@@ -88,7 +90,7 @@ public class RosConnectionService extends Service{
                     body.put("msg", message);
 
                     rosBridgeClient.send(body.toString());
-                    Log.v(TAG, "publish '/cmd_vel_mux/input/teleop' to Ros Server :\n" + body.toString());
+                    Log.v(TAG, "publish "+Constant.PUBLISH_TOPIC_CMD_MOVE+" to Ros Server :\n" + body.toString());
                 } catch (JSONException e) {
                     e.printStackTrace();
                 }
@@ -96,7 +98,9 @@ public class RosConnectionService extends Service{
             }
         }
 
-        //订阅某个topic或者取消订阅某个topic
+        /**
+         *订阅某个topic或者取消订阅某个topic
+         */
         public void manipulateTopic(String topic, boolean isSubscribe) {
             if (isConnected()) {
                 //订阅
@@ -121,6 +125,47 @@ public class RosConnectionService extends Service{
                     rosBridgeClient.send(subscribeMuseumPos.toString());
                 }
             }
+        }
+
+        /**
+         * 发布message控制升降台高度
+         * @param percent  高度百分比[0,100]
+         */
+        public void sendLiftHeightMsg(int percent) {
+            JSONObject msg = new JSONObject();
+            JSONObject body = new JSONObject();
+            try {
+                msg.put("height_percent", percent);
+                body.put("op", "publish");
+                body.put("topic", Constant.PUBLISH_TOPIC_CMD_LIFT);
+                body.put("msg", msg);
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
+            rosBridgeClient.send(body.toString());
+            Log.v(TAG, "publish "+Constant.PUBLISH_TOPIC_CMD_LIFT+" to Ros Server :\n" + body.toString());
+        }
+
+        /**
+         * 发布Message控制云台旋转角度和摄像头角度
+         * 如果值为-1则表示不控制这个参数
+         * @param cloudDegree  云台角度
+         * @param cameraDegree 摄像头角度
+         */
+        public void sendCloudCameraMsg(int cloudDegree, int cameraDegree){
+            JSONObject msg = new JSONObject();
+            JSONObject body = new JSONObject();
+            try {
+                msg.put("cloud_degree", cloudDegree);
+                msg.put("camera_degree", cameraDegree);
+                body.put("op", "publish");
+                body.put("topic", Constant.PUBLISH_TOPIC_CMD_CLOUD_CAMERA);
+                body.put("msg", msg);
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
+            rosBridgeClient.send(body.toString());
+            Log.v(TAG, "publish "+Constant.PUBLISH_TOPIC_CMD_CLOUD_CAMERA+" to Ros Server :\n" + body.toString());
         }
 
         public void disConnect() {
@@ -218,18 +263,38 @@ public class RosConnectionService extends Service{
     public void onEvent(PublishEvent event) {
         //topic的名称
         String topicName = event.name;
-        Log.v(TAG, "onEvent:" + event.msg);
-        String response = event.msg;
-        try {
-            JSONObject object = new JSONObject();
-            object.put("topicName", topicName);
-            object.put("data", new JSONObject(response).get("data"));
-            if (response.length()>100) {
-                EventBus.getDefault().post(object.toString());
-            }
-        } catch (JSONException e) {
-
+        if (event.msg.length() < 500) {
+            Log.v(TAG, "onEvent:" + event.msg);
+        } else {
+            Log.v(TAG,"got base64 map string");
         }
+        String response = event.msg;
+        if (topicName.equals(Constant.SUBSCRIBE_TOPIC_MAP)) {
+            try {
+                JSONObject object = new JSONObject();
+                object.put("topicName", topicName);
+                object.put("data", new JSONObject(response).get("data"));
+                if (response.length()>100) {
+                    EventBus.getDefault().post(object.toString());
+                }
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
+        } else if (topicName.equals(Constant.SUBSCRIBE_TOPIC_ROBOT_STATE)) {
+            try {
+                JSONObject responseObj = new JSONObject(response);
+                JSONObject msg = responseObj.getJSONObject("data");
+                int powerPercent = msg.getInt("power_percent");
+                int heightPercent = msg.getInt("height_percent");
+                int cloudDegree = msg.getInt("cloud_degree");
+                int cameraDegree = msg.getInt("camera_degree");
+                EventBus.getDefault().post(new RobotState(powerPercent, heightPercent, cloudDegree, cameraDegree));
+
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
+        }
+
 
     }
 
@@ -243,9 +308,7 @@ public class RosConnectionService extends Service{
 
     public void startRosConnectionTimer() {
         Log.i(TAG, "isConnected:" + isConnected);
-        if (isConnected) {
-            return;
-        } else {
+        if (!isConnected) {
             rosConnectionTimer.schedule(connectionTask,0,3000);
         }
     }
