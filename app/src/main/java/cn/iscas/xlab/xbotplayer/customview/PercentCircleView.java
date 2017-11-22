@@ -41,6 +41,8 @@ public class PercentCircleView extends View {
     
     private Path bezierPath;
     private Paint bezierPaint;
+
+    //贝塞尔曲线与圆形边界的左交接点位置
     private float bezierStartX , bezierStartY;
     //贝塞尔曲线起始点的偏移量，用于动画效果
     private float bezierStartShift = 0;
@@ -81,7 +83,7 @@ public class PercentCircleView extends View {
                     colorBatteryVeryLow = array.getColor(index, Color.RED);
                     break;
                 case R.styleable.PercentCircleView_stroke_size:
-                    strokeSize = array.getDimensionPixelSize(index, 40);
+                    strokeSize = array.getDimensionPixelSize(index, 4);
                     break;
                 case R.styleable.PercentCircleView_stroke_color:
                     strokeColor = array.getColor(index, Color.GREEN);
@@ -165,8 +167,8 @@ public class PercentCircleView extends View {
     @Override
     protected void onDraw(Canvas canvas) {
         super.onDraw(canvas);
-        centerX = getWidth() / 2;
-        centerY = getHeight() / 2;
+        centerX = getMeasuredWidth() / 2;
+        centerY = getMeasuredHeight() / 2;
 
         canvas.save();
         clipPath.reset();
@@ -217,14 +219,15 @@ public class PercentCircleView extends View {
             bezierStartY = centerY ;
         }
 
+        //bezierStartX和bezierStartY是贝塞尔曲线和圆形的左交点
         bezierPath.reset();
-        bezierPath.moveTo(bezierStartX-4*peakWidth, bezierStartY);
+        bezierPath.moveTo(bezierStartX-peakWidth * 4, bezierStartY);
         //画n组曲线，一组曲线为一个波峰和一个波谷
-        int n =4;
+        int n =5;
 
         for(int i=0;i<n;i++) {
-            //i=0时，往起始点左边画一组，为了达到动画衔接
-            float pAx = bezierStartX + (i-1) * peakWidth * 2;
+            //i=0时，往起始点左边画2组，为了达到动画衔接
+            float pAx = bezierStartX + ((i-2) * peakWidth * 2);
             float pAy = bezierStartY;
 
             float cABx = pAx + peakWidth / 2;
@@ -245,10 +248,11 @@ public class PercentCircleView extends View {
             if (i == n-1 ) {
                 bezierPath.lineTo(pCx+getMeasuredWidth(),pCy);
                 bezierPath.lineTo(pCx+getMeasuredWidth(),pCy+(float)getMeasuredHeight());
-                bezierPath.lineTo(bezierStartX-getMeasuredWidth() ,bezierStartY+(float)getMeasuredHeight());
-                bezierPath.lineTo(bezierStartX-getMeasuredWidth(),bezierStartY);
-                bezierPath.close();
+                bezierPath.lineTo(bezierStartX - getMeasuredWidth(), bezierStartY + (float) getMeasuredHeight());
+                bezierPath.lineTo(bezierStartX - getMeasuredWidth(), bezierStartY);
 
+//                canvas.drawCircle(bezierStartX , bezierStartY, 10, textPaint);
+//                canvas.drawCircle(bezierStartX - 2 * peakWidth, bezierStartY, 10, textPaint);
             }
         }
 
@@ -273,7 +277,7 @@ public class PercentCircleView extends View {
                 invalidate();
             }
         });
-        valueAnimator.setDuration(1500);
+        valueAnimator.setDuration(2000);
         valueAnimator.setRepeatCount(ValueAnimator.INFINITE);
         valueAnimator.setRepeatMode(ValueAnimator.RESTART);
         valueAnimator.setInterpolator(new LinearInterpolator());
@@ -296,7 +300,6 @@ public class PercentCircleView extends View {
             this.percent = p;
         }
 
-        postInvalidate();
         startAnim();
     }
 

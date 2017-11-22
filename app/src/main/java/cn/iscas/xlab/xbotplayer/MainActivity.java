@@ -23,12 +23,17 @@ import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.design.widget.BottomNavigationView;
 import android.support.v4.app.FragmentManager;
-import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.MotionEvent;
+import android.view.View;
+import android.view.ViewGroup;
+import android.view.Window;
+import android.widget.ImageButton;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import cn.iscas.xlab.xbotplayer.mvp.cemera.CameraFragment;
@@ -51,19 +56,27 @@ public class MainActivity extends AppCompatActivity {
     private RobotStateFragment robotStateFragment;
     private long lastExitTime;
     private FragmentManager fragmentManager;
-    private ActionBar actionBar;
     private int selectedNavItem = 0;
+    private TextView pageTitle;
+    private ImageButton settingButton;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         log("onCreate()");
+        supportRequestWindowFeature(Window.FEATURE_NO_TITLE);
         setContentView(R.layout.activity_main);
-
         bottomNavigationView = (BottomNavigationView) findViewById(R.id.bottom_navigation);
+        pageTitle = (TextView) findViewById(R.id.page_title);
+        settingButton = (ImageButton) findViewById(R.id.setting_button);
+
+        //获取状态栏高度，显示一个占位的View(该view和actionbar颜色相同)，达到沉浸式状态栏效果
+        View status_bar = findViewById(R.id.status_bar_view);
+        ViewGroup.LayoutParams params = status_bar.getLayoutParams();
+        params.height = getStatusBarHeight();
+        status_bar.setLayoutParams(params);
 
         initListeners();
-        actionBar = getSupportActionBar();
         initConfiguration();
 
         if (savedInstanceState == null) {
@@ -131,7 +144,7 @@ public class MainActivity extends AppCompatActivity {
                 log("onNavigationItemSelected():"+item.getItemId());
                 switch (item.getItemId()) {
                     case R.id.robot_state:
-                        actionBar.setTitle("Xbot状态");
+                        pageTitle.setText("Xbot状态");
                         mapFragment.hideLoading();
                         fragmentManager.beginTransaction()
                                 .hide(cameraFragment)
@@ -141,7 +154,7 @@ public class MainActivity extends AppCompatActivity {
                         selectedNavItem = 0;
                         break;
                     case R.id.controller:
-                        actionBar.setTitle("控制界面");
+                        pageTitle.setText("控制界面");
                         mapFragment.hideLoading();
                         fragmentManager.beginTransaction()
                                 .hide(cameraFragment)
@@ -151,7 +164,7 @@ public class MainActivity extends AppCompatActivity {
                         selectedNavItem = 1;
                         break;
                     case R.id.camera:
-                        actionBar.setTitle("摄像头");
+                        pageTitle.setText("摄像头");
                         mapFragment.hideLoading();
                         fragmentManager.beginTransaction()
                                 .hide(mapFragment)
@@ -164,6 +177,14 @@ public class MainActivity extends AppCompatActivity {
                         break;
                 }
                 return true;
+            }
+        });
+
+        settingButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(MainActivity.this, SettingsActivity.class);
+                startActivity(intent);
             }
         });
     }
@@ -185,6 +206,15 @@ public class MainActivity extends AppCompatActivity {
 
     }
 
+    private int getStatusBarHeight(){
+        int height = 0;
+        int resourceId = getResources().getIdentifier("status_bar_height", "dimen", "android");
+        if (resourceId > 0) {
+            height = getResources().getDimensionPixelSize(resourceId);
+        }
+        return height;
+    }
+
     @Override
     protected void onRestoreInstanceState(Bundle savedInstanceState) {
         log("onRestoreInstanceState()");
@@ -193,26 +223,19 @@ public class MainActivity extends AppCompatActivity {
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
-        getMenuInflater().inflate(R.menu.menu_setting,menu);
+//        getMenuInflater().inflate(R.menu.menu_setting,menu);
         return true;
     }
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        switch (item.getItemId()) {
-            case R.id.settings:
-                Intent intent = new Intent(this, SettingsActivity.class);
-                startActivity(intent);
-                break;
-            default:
-                break;
-        }
+
         return true;
     }
 
     @Override
     public boolean onKeyDown(int keyCode, KeyEvent event) {
-        if (keyCode == KeyEvent.KEYCODE_BACK && event.getAction() == event.ACTION_DOWN) {
+        if (keyCode == KeyEvent.KEYCODE_BACK && event.getAction() == MotionEvent.ACTION_DOWN) {
             if (System.currentTimeMillis() - lastExitTime < 2000) {
                 finish();
             }else{

@@ -219,7 +219,9 @@ public class RobotStateFragment extends Fragment implements RobotStateContract.V
     @Override
     public void onDestroyView() {
         super.onDestroyView();
-        presenter.unSubscribeRobotState();
+        if (presenter != null) {
+            presenter.unSubscribeRobotState();
+        }
     }
 
     private void log(String s){

@@ -22,4 +22,16 @@
         <item name="colorAccent">@color/colorAccent</item>
     </style>
 
+
+    <style name="TranslucentTheme" parent="Theme.AppCompat.Light.DarkActionBar" >
+
+        <!--设置状态栏是否透明-->
+        <item name="android:windowTranslucentStatus">false</item>
+
+        <!--设置底部的虚拟按键(导航栏)透明-->
+        <item name="android:windowTranslucentNavigation">true</item>
+        <item name="android:statusBarColor">@android:color/transparent</item>
+
+    </style>
+
 </resources>

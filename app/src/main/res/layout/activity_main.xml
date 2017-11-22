@@ -21,6 +21,39 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     >
 
+    <!--沉浸式状态栏效果：这是放置在状态栏的占位view-->
+    <View
+        android:id="@+id/status_bar_view"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:background="@drawable/actionbar_bg" />
+
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="?attr/actionBarSize"
+        android:background="@drawable/actionbar_bg">
+
+        <TextView
+            android:id="@+id/page_title"
+            android:textSize="20sp"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerInParent="true"
+            android:text="MainPage"
+            android:gravity="center"
+            />
+
+        <ImageButton
+            android:id="@+id/setting_button"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentEnd="true"
+            android:layout_marginEnd="10dp"
+            android:layout_centerVertical="true"
+            android:background="@drawable/icon_setting"/>
+    </RelativeLayout>
+
     <FrameLayout
         android:id="@+id/container"
         android:layout_width="match_parent"
