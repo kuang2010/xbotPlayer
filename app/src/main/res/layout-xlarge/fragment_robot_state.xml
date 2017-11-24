@@ -2,23 +2,14 @@
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
-    android:layout_height="match_parent">
-    <TextView
-        android:id="@+id/battery_txt"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_centerHorizontal="true"
-        android:text="电量"
-        android:layout_margin="5dp"
-        android:textSize="25sp"
-        android:textColor="@color/colorPrimary"
-        />
+    android:layout_height="match_parent"
+    android:fitsSystemWindows="true">
+
     <cn.iscas.xlab.xbotplayer.customview.PercentCircleView
         android:id="@+id/battery_view"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_centerHorizontal="true"
-        android:layout_below="@id/battery_txt"
         app:radius="80dp"
         app:normal_state_color="#7cb342"
         app:mid_state_color="#ff8f00"
@@ -29,29 +20,51 @@
         app:text_color="#ab47bc"/>
 
 
+    <TextView
+        android:id="@+id/battery_txt"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerHorizontal="true"
+        android:layout_below="@id/battery_view"
+        android:text="电量"
+        android:layout_margin="5dp"
+        android:textSize="25sp"
+        android:textColor="@color/colorPrimary"
+        />
+
+    <View
+        android:id="@+id/divider1"
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:background="#eeeeee"
+        android:layout_centerHorizontal="true"
+        android:layout_below="@id/battery_txt"/>
+
     <Button
         android:id="@+id/bt1"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_alignParentRight="true"
-        android:text="percent +6"/>
+        android:background="#ffffff"
+        android:alpha="30"
+        android:layout_alignParentEnd="true"
+        android:text="+6"/>
 
     <Button
         android:id="@+id/bt2"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_alignParentRight="true"
+        android:background="#ffffff"
+        android:alpha="30"
+        android:layout_alignParentEnd="true"
         android:layout_below="@id/bt1"
-        android:text="percent -6 "/>
-
-
+        android:text="-6"/>
 
     <cn.iscas.xlab.xbotplayer.customview.CustomSeekBar
         android:id="@+id/seekbar_cloud_degree"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="center_horizontal"
-        android:layout_below="@id/battery_view"
+        android:layout_below="@id/divider1"
         android:layout_margin="5dp"
         android:layout_centerHorizontal="true"
         app:is_horizontal="true"
@@ -82,18 +95,25 @@
         android:textColor="@color/colorPrimary"
         />
 
+    <View
+        android:id="@+id/divider2"
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:background="#eeeeee"
+        android:layout_centerHorizontal="true"
+        android:layout_below="@id/cloud_degree_txt"/>
+
     <LinearLayout
         android:id="@+id/linear_layout"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_centerHorizontal="true"
         android:orientation="horizontal"
-        android:layout_below="@id/cloud_degree_txt">
+        android:layout_below="@id/divider2">
 
         <LinearLayout
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginEnd="10dp"
             android:orientation="vertical">
             <cn.iscas.xlab.xbotplayer.customview.CustomSeekBar
                 android:id="@+id/seekbar_lift_height"
@@ -131,7 +151,6 @@
         <LinearLayout
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginStart="20dp"
             android:orientation="vertical">
             <cn.iscas.xlab.xbotplayer.customview.CustomSeekBar
                 android:id="@+id/seekbar_cemera_degree"

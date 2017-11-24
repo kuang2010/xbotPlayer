@@ -23,7 +23,7 @@ import cn.iscas.xlab.xbotplayer.R;
 
 public class PercentCircleView extends View {
 
-    private int percent = 72;
+    private int percent = 87;
     private int radius;
     private int textSize;
     private int textColor;
@@ -167,13 +167,13 @@ public class PercentCircleView extends View {
     @Override
     protected void onDraw(Canvas canvas) {
         super.onDraw(canvas);
-        centerX = getMeasuredWidth() / 2;
-        centerY = getMeasuredHeight() / 2;
+        centerX = getMeasuredWidth() / 2F;
+        centerY = getMeasuredHeight() / 2F;
 
         canvas.save();
         clipPath.reset();
         canvas.clipPath(clipPath);
-        clipPath.addCircle(centerX, centerY, radius, Path.Direction.CCW);
+        clipPath.addCircle(centerX, centerY, radius+strokeSize/2F, Path.Direction.CCW);
         canvas.clipPath(clipPath, Region.Op.REPLACE);
 
         if (percent <= 10) {
@@ -189,14 +189,14 @@ public class PercentCircleView extends View {
             float distanceToCenter ;
             if (percent == 0) {
                 //如果等于0%则按照1%来显示
-                distanceToCenter = 2*radius*(50 - 1)/100F  ;
+                distanceToCenter = 2F*radius*(50 - 1)/100F  ;
             } else {
-                distanceToCenter = 2*radius*(50 - percent)/100F  ;
+                distanceToCenter = 2F*radius*(50 - percent)/100F  ;
             }
             double angle = Math.acos(distanceToCenter / radius);
             peakWidth = (float) (radius * Math.sin(angle) / 2);
             peakHeight = (radius-distanceToCenter)/4;
-            bezierStartX = centerX - 2 * peakWidth + bezierStartShift;
+            bezierStartX = centerX - (4F * peakWidth) + bezierStartShift;
             bezierStartY = centerY + distanceToCenter;
         } else if (percent > 50 && percent <= 100) {
             float distanceToCenter;
@@ -207,39 +207,37 @@ public class PercentCircleView extends View {
                 distanceToCenter = 2 * radius * (percent - 50) / 100F;
             }
             double angle = Math.acos(distanceToCenter / radius);
-            peakWidth = (float) (radius * Math.sin(angle) / 2);
-            peakHeight = (radius-distanceToCenter)/4;
-            bezierStartX = centerX - 2 * peakWidth + bezierStartShift;
+            peakWidth = (float) (radius * Math.sin(angle) / 2F);
+            peakHeight = (radius-distanceToCenter)/4F;
+            bezierStartX = centerX - 4F * peakWidth + bezierStartShift;
             bezierStartY = centerY - distanceToCenter;
         }else{
             //50%
-            peakWidth = radius / 2;
-            peakHeight = (radius)/4;
-            bezierStartX = centerX - 2 * peakWidth + bezierStartShift;
+            peakWidth = radius / 2F;
+            peakHeight = (radius)/4F;
+            bezierStartX = centerX - 4F * peakWidth + bezierStartShift;
             bezierStartY = centerY ;
         }
 
-        //bezierStartX和bezierStartY是贝塞尔曲线和圆形的左交点
+        //bezierStartX和bezierStartY是贝塞尔曲线绘制的起始坐标
         bezierPath.reset();
-        bezierPath.moveTo(bezierStartX-peakWidth * 4, bezierStartY);
+        bezierPath.moveTo(bezierStartX, bezierStartY);
         //画n组曲线，一组曲线为一个波峰和一个波谷
-        int n =5;
-
+        int n = 3;
         for(int i=0;i<n;i++) {
-            //i=0时，往起始点左边画2组，为了达到动画衔接
-            float pAx = bezierStartX + ((i-2) * peakWidth * 2);
+            float pAx = bezierStartX + peakWidth*i*2F;
             float pAy = bezierStartY;
 
-            float cABx = pAx + peakWidth / 2;
+            float cABx = pAx + peakWidth / 2F;
             float cABy = pAy - peakHeight;
 
             float pBx = pAx + peakWidth;
             float pBy = pAy;
 
-            float cBCx = pBx + peakWidth / 2;
+            float cBCx = pBx + peakWidth / 2F;
             float cBCy = pBy + peakHeight;
 
-            float pCx = pAx + peakWidth*2;
+            float pCx = pAx + peakWidth*2F;
             float pCy = pAy;
 
             bezierPath.quadTo(cABx, cABy, pBx, pBy);
@@ -248,11 +246,8 @@ public class PercentCircleView extends View {
             if (i == n-1 ) {
                 bezierPath.lineTo(pCx+getMeasuredWidth(),pCy);
                 bezierPath.lineTo(pCx+getMeasuredWidth(),pCy+(float)getMeasuredHeight());
-                bezierPath.lineTo(bezierStartX - getMeasuredWidth(), bezierStartY + (float) getMeasuredHeight());
-                bezierPath.lineTo(bezierStartX - getMeasuredWidth(), bezierStartY);
-
-//                canvas.drawCircle(bezierStartX , bezierStartY, 10, textPaint);
-//                canvas.drawCircle(bezierStartX - 2 * peakWidth, bezierStartY, 10, textPaint);
+                bezierPath.lineTo(pAx - getMeasuredWidth()-4F*peakWidth, pAy + (float) getMeasuredHeight());
+                bezierPath.lineTo(pAx - getMeasuredWidth()-4F*peakWidth, pAy);
             }
         }
 
@@ -269,7 +264,9 @@ public class PercentCircleView extends View {
     }
 
     public void startAnim() {
-        valueAnimator = ValueAnimator.ofFloat(0, peakWidth*2 );
+        bezierStartShift = 0F;
+
+        valueAnimator = ValueAnimator.ofFloat(0, peakWidth*2F);
         valueAnimator.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
             @Override
             public void onAnimationUpdate(ValueAnimator animation) {
@@ -277,10 +274,10 @@ public class PercentCircleView extends View {
                 invalidate();
             }
         });
-        valueAnimator.setDuration(2000);
+        valueAnimator.setInterpolator(new LinearInterpolator());
         valueAnimator.setRepeatCount(ValueAnimator.INFINITE);
         valueAnimator.setRepeatMode(ValueAnimator.RESTART);
-        valueAnimator.setInterpolator(new LinearInterpolator());
+        valueAnimator.setDuration(3000);
         valueAnimator.start();
     }
 
@@ -300,6 +297,33 @@ public class PercentCircleView extends View {
             this.percent = p;
         }
 
+        //这里解决了一个隐蔽的问题，当更新了percent后，valueAnimator使用的还是原来的peakWidth
+        //动画之间切换的时候就会出现有细微的停顿感和不衔接
+        //下面的代码：每次开启动画时重新计算peakWidth，这样就保证每次创建的valueAnimator都会使得动画完整衔接
+        if (percent>= 0 && percent < 50) {
+            float distanceToCenter ;
+            if (percent == 0) {
+                //如果等于0%则按照1%来显示
+                distanceToCenter = 2F*radius*(50 - 1)/100F  ;
+            } else {
+                distanceToCenter = 2F*radius*(50 - percent)/100F  ;
+            }
+            double angle = Math.acos(distanceToCenter / radius);
+            peakWidth = (float) (radius * Math.sin(angle) / 2);
+        } else if (percent > 50 && percent <= 100) {
+            float distanceToCenter;
+            //如果等于100则按照99来显示
+            if (percent == 100) {
+                distanceToCenter = 2 * radius * (99 - 50) / 100F;
+            } else {
+                distanceToCenter = 2 * radius * (percent - 50) / 100F;
+            }
+            double angle = Math.acos(distanceToCenter / radius);
+            peakWidth = (float) (radius * Math.sin(angle) / 2F);
+        }else{
+            //50%
+            peakWidth = radius / 2F;
+        }
         startAnim();
     }
 

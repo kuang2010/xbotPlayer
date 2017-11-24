@@ -65,6 +65,7 @@ public class RobotStateFragment extends Fragment implements RobotStateContract.V
     }
 
     private void initListeners() {
+        //TODO :这些后面要去掉
         bt1.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -78,6 +79,12 @@ public class RobotStateFragment extends Fragment implements RobotStateContract.V
             }
         });
 
+        batteryView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                batteryView.startAnim();
+            }
+        });
         liftHeightSeekBar.setOnSeekChangeListener(new CustomSeekBar.OnProgressChangeListener() {
             @Override
             public void onProgressChanged(int value) {

@@ -44,7 +44,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:background="#ffffff"
-        android:alpha="0"
+        android:alpha="30"
         android:layout_alignParentEnd="true"
         android:text="+6"/>
 
@@ -53,7 +53,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:background="#ffffff"
-        android:alpha="0"
+        android:alpha="30"
         android:layout_alignParentEnd="true"
         android:layout_below="@id/bt1"
         android:text="-6"/>
