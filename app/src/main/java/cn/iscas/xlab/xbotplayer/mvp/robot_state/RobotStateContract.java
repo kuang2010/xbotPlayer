@@ -25,6 +25,8 @@ public interface RobotStateContract {
 
         void publishCloudCameraMsg(int cloudDegree,int cameraDegree);
 
+        void publishElectricMachineryMsg(boolean activate);
+
     }
 
 

@@ -24,4 +24,5 @@
 
     <string name="pref_speed_summary">0.3</string>
 
+    <string name="battery_text">电量</string>
 </resources>

@@ -7,6 +7,7 @@ import android.util.Log;
 import cn.iscas.xlab.xbotplayer.Constant;
 import cn.iscas.xlab.xbotplayer.RosConnectionService;
 import cn.iscas.xlab.xbotplayer.entity.RobotState;
+import de.greenrobot.event.EventBus;
 
 /**
  * Created by lisongting on 2017/11/14.
@@ -22,7 +23,7 @@ public class RobotStatePresenter implements RobotStateContract.Presenter {
     public RobotStatePresenter(RobotStateContract.View v){
         view = v;
         view.setPresenter(this);
-
+        EventBus.getDefault().register(this);
     }
 
     @Override
@@ -64,6 +65,15 @@ public class RobotStatePresenter implements RobotStateContract.Presenter {
             return;
         }
         serviceProxy.sendCloudCameraMsg(cloudDegree, cameraDegree);
+    }
+
+    @Override
+    public void publishElectricMachineryMsg(boolean activate) {
+        if (serviceProxy == null) {
+            Log.e(TAG,"serviceProxy is null");
+            return;
+        }
+        serviceProxy.sendElectricMachineryMsg(activate);
     }
 
 

@@ -16,6 +16,8 @@ public class Constant {
 
     public static final String PUBLISH_TOPIC_CMD_CLOUD_CAMERA = "/mobile_base/commands/cloud_camera";
 
+    public static final String PUBLISH_TOPIC_CMD_MACHINERY_POWER = "/mobile_base/commands/power";
+
     public static final String SUBSCRIBE_TOPIC_RGB_IMAGE = "/base64_img/camera_rgb";
 
     public static final String SUBSCRIBE_TOPIC_DEPTH_IMAGE = "/base64_img/camera_depth";

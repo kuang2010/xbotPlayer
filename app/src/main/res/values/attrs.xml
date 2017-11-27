@@ -51,4 +51,11 @@
         <attr name="text_size" format="dimension|reference" />
         <attr name="text_color" format="color|reference" />
     </declare-styleable>
+
+    <declare-styleable name="Switcher">
+        <attr name="width" format="dimension|reference" />
+        <attr name="switcher_radius" format="dimension|reference" />
+        <attr name="enableColor" format="color|reference" />
+        <attr name="strokeWidth" format="dimension|reference" />
+    </declare-styleable>
 </resources>

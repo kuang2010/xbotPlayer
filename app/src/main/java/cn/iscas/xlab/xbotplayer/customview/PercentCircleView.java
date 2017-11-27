@@ -7,6 +7,7 @@ import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.Path;
+import android.graphics.Rect;
 import android.graphics.Region;
 import android.support.annotation.Nullable;
 import android.util.AttributeSet;
@@ -23,7 +24,7 @@ import cn.iscas.xlab.xbotplayer.R;
 
 public class PercentCircleView extends View {
 
-    private int percent = 87;
+    private int percent = 66;
     private int radius;
     private int textSize;
     private int textColor;
@@ -50,6 +51,8 @@ public class PercentCircleView extends View {
     float peakWidth =0;
     //用于裁剪的path
     private Path clipPath;
+    private String batteryText,batteryPercent;
+    private Rect batteryTextBounds,batteryPercentBounds;
 
     private ValueAnimator valueAnimator;
     public PercentCircleView(Context context) {
@@ -98,6 +101,7 @@ public class PercentCircleView extends View {
                     break;
             }
         }
+        batteryText = context.getString(R.string.battery_text);
 
         initializePaint();
 
@@ -117,16 +121,16 @@ public class PercentCircleView extends View {
         strokePaint.setAntiAlias(true);
         strokePaint.setStyle(Paint.Style.STROKE);
         strokePaint.setStrokeWidth(strokeSize);
-        strokePaint.setAlpha(50);
         strokePaint.setStrokeCap(Paint.Cap.ROUND);
 
         bezierPaint = new Paint();
         bezierPaint.setStyle(Paint.Style.FILL);
-        bezierPaint.setStrokeWidth(8);
         bezierPaint.setAntiAlias(true);
 
         bezierPath = new Path();
         clipPath = new Path();
+        batteryTextBounds = new Rect();
+        batteryPercentBounds = new Rect();
     }
 
     @Override
@@ -143,19 +147,17 @@ public class PercentCircleView extends View {
         if (widthMode == MeasureSpec.AT_MOST) {
 //            int wantSize  = (radius + strokeSize) * 2 < widthSize ? (radius + strokeSize) * 2 : widthSize / 2;
 //            width = wantSize < widthSize ? wantSize : widthSize;
-            width = (radius + strokeSize) * 2;
-
+            width = (radius + strokeSize*5 ) * 2;
         } else if (widthMode == MeasureSpec.EXACTLY) {
-//            width = (radius + strokeSize) * 2 < widthSize ? (radius + strokeSize) * 2 : widthSize / 2;
-            width = (radius + strokeSize) * 2;
+            width = widthSize;
         }
 
         if (heightMode == MeasureSpec.AT_MOST) {
 //            int wantSize = (radius + strokeSize) * 2 ;
 //            height = wantSize < heightSize ? wantSize : heightSize;
-            height = (radius + strokeSize) * 2 ;
+            height = (radius + strokeSize*5) * 2 ;
         } else if (heightMode == MeasureSpec.EXACTLY) {
-            height = (radius + strokeSize) * 2 ;
+            height = heightSize;
         }
 
         //将width 和height 统一设置为更小的
@@ -255,11 +257,17 @@ public class PercentCircleView extends View {
 
         canvas.restore();
         //绘制电量百分比
-        String text = percent + "%";
-        float textWidth = textPaint.measureText(text);
-        canvas.drawText(text, centerX - textWidth / 2,centerY-(textPaint.ascent()+textPaint.descent())/2, textPaint);
-
-        canvas.drawCircle(centerX, centerY, radius, strokePaint);
+        textPaint.setColor(textColor);
+        textPaint.setTextSize(textSize);
+        batteryPercent = percent + "%";
+        textPaint.getTextBounds(batteryPercent, 0, batteryPercent.length(), batteryPercentBounds);
+        canvas.drawText(batteryPercent, centerX - batteryPercentBounds.width() / 2,centerY+batteryPercentBounds.height()/2, textPaint);
+        //绘制文字："电量"
+        textPaint.setTextSize(42);
+        textPaint.setColor(Color.parseColor("#333333"));
+        textPaint.getTextBounds(batteryText, 0, batteryText.length(), batteryTextBounds);
+        canvas.drawText(batteryText, centerX - batteryTextBounds.width() / 2, centerY + batteryPercentBounds.height() + batteryTextBounds.height() , textPaint);
+        canvas.drawCircle(centerX, centerY, radius+strokeSize*2, strokePaint);
 
     }
 

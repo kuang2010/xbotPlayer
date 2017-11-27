@@ -3,33 +3,36 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:fitsSystemWindows="true">
+    >
 
     <cn.iscas.xlab.xbotplayer.customview.PercentCircleView
         android:id="@+id/battery_view"
-        android:layout_width="wrap_content"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_centerHorizontal="true"
+        android:background="@drawable/background"
+        android:padding="20dp"
         app:radius="50dp"
-        app:normal_state_color="#7cb342"
+        app:normal_state_color="@color/colorPrimary"
         app:mid_state_color="#ff8f00"
-        app:low_state_color="#b71c1c"
-        app:stroke_size="2dp"
-        app:stroke_color="#00bcd4"
-        app:text_size="25sp"
-        app:text_color="#ab47bc"/>
-
-    <TextView
-        android:id="@+id/battery_txt"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_centerHorizontal="true"
-        android:layout_below="@id/battery_view"
-        android:text="电量"
-        android:layout_margin="2dp"
-        android:textSize="20sp"
-        android:textColor="@color/colorPrimary"
+        app:low_state_color="#c62828"
+        app:stroke_size="3dp"
+        app:stroke_color="@color/colorPrimary"
+        app:text_size="26sp"
+        app:text_color="@android:color/white"
         />
+
+    <!--<TextView-->
+        <!--android:id="@+id/battery_txt"-->
+        <!--android:layout_width="wrap_content"-->
+        <!--android:layout_height="wrap_content"-->
+        <!--android:layout_centerHorizontal="true"-->
+        <!--android:layout_below="@id/battery_view"-->
+        <!--android:text="电量"-->
+        <!--android:layout_margin="2dp"-->
+        <!--android:textSize="14sp"-->
+        <!--android:textColor="@color/colorStatePageText"-->
+        <!--/>-->
 
     <View
         android:id="@+id/divider1"
@@ -37,14 +40,50 @@
         android:layout_height="1dp"
         android:background="#eeeeee"
         android:layout_centerHorizontal="true"
-        android:layout_below="@id/battery_txt"/>
+        android:layout_below="@id/battery_view"/>
+
+    <RelativeLayout
+        android:id="@+id/layout_item1"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/divider1"
+        android:layout_marginTop="10dp"
+        android:layout_marginBottom="10dp"
+        android:paddingStart="30dp"
+        >
+        <TextView
+            android:id="@+id/electric_text"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textSize="14sp"
+            android:textColor="@color/colorStatePageText"
+            android:layout_centerVertical="true"
+            android:layout_marginEnd="17dp"
+            android:text="电机电源"/>
+        <Switch
+            android:id="@+id/switcher"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_toEndOf="@id/electric_text"
+            android:theme="@style/SwitcherTheme"
+            android:checked="true"
+            />
+    </RelativeLayout>
+
+    <View
+        android:id="@+id/divider2"
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:background="#eeeeee"
+        android:layout_centerHorizontal="true"
+        android:layout_below="@id/layout_item1"/>
 
     <Button
         android:id="@+id/bt1"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:background="#ffffff"
-        android:alpha="30"
+        android:alpha="0"
         android:layout_alignParentEnd="true"
         android:text="+6"/>
 
@@ -53,56 +92,62 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:background="#ffffff"
-        android:alpha="30"
+        android:alpha=" 0"
         android:layout_alignParentEnd="true"
         android:layout_below="@id/bt1"
         android:text="-6"/>
 
-
-
-    <cn.iscas.xlab.xbotplayer.customview.CustomSeekBar
-        android:id="@+id/seekbar_cloud_degree"
-        android:layout_width="wrap_content"
+    <RelativeLayout
+        android:id="@+id/layout_item2"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_gravity="center_horizontal"
-        android:layout_below="@id/divider1"
-        android:layout_margin="3dp"
-        android:layout_centerHorizontal="true"
-        app:is_horizontal="true"
-        app:track_length="200dp"
-        app:track_width="5dp"
-        app:track_color="@android:color/holo_green_light"
-        app:indicator_radius="9dp"
-        app:indicator_color="@color/colorAccent"
-        app:bubble_color="@android:color/holo_blue_light"
-        app:bubble_height="25dp"
-        app:bubble_width="40dp"
-        app:bubble_text_size="15sp"
-        app:bubble_text_color="@android:color/holo_red_light"
-        app:min_value="-90"
-        app:max_value="90"
-        app:value_text_size="16sp"
-        app:value_text_color="@color/colorPrimary"/>
+        android:layout_below="@id/divider2"
+        android:paddingStart="30dp">
 
-    <TextView
-        android:id="@+id/cloud_degree_txt"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_centerHorizontal="true"
-        android:layout_below="@id/seekbar_cloud_degree"
-        android:text="云台角度"
-        android:layout_marginBottom="5dp"
-        android:textSize="15sp"
-        android:textColor="@color/colorPrimary"
-        />
+        <TextView
+            android:id="@+id/cloud_degree_txt"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="云台角度"
+            android:layout_centerVertical="true"
+            android:layout_marginBottom="5dp"
+            android:textSize="14sp"
+            android:textColor="@color/colorStatePageText"
+            />
+
+        <cn.iscas.xlab.xbotplayer.customview.CustomSeekBar
+            android:id="@+id/seekbar_cloud_degree"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_horizontal"
+            android:layout_margin="3dp"
+            android:layout_toEndOf="@id/cloud_degree_txt"
+            app:is_horizontal="true"
+            app:track_length="200dp"
+            app:track_width="5dp"
+            app:track_color="@color/colorPrimary"
+            app:indicator_radius="9dp"
+            app:indicator_color="@color/colorLightPink"
+            app:bubble_color="@color/colorPrimary"
+            app:bubble_height="25dp"
+            app:bubble_width="40dp"
+            app:bubble_text_size="12sp"
+            app:bubble_text_color="@color/colorLightPink"
+            app:min_value="-90"
+            app:max_value="90"
+            app:value_text_size="14sp"
+            app:value_text_color="@color/colorStatePageText"/>
+    </RelativeLayout>
+
+
 
     <View
-        android:id="@+id/divider2"
+        android:id="@+id/divider3"
         android:layout_width="match_parent"
         android:layout_height="1dp"
         android:background="#eeeeee"
         android:layout_centerHorizontal="true"
-        android:layout_below="@id/cloud_degree_txt"/>
+        android:layout_below="@id/layout_item2"/>
 
     <LinearLayout
         android:id="@+id/linear_layout"
@@ -110,7 +155,7 @@
         android:layout_height="wrap_content"
         android:layout_centerHorizontal="true"
         android:orientation="horizontal"
-        android:layout_below="@id/divider2">
+        android:layout_below="@id/divider3">
 
         <LinearLayout
             android:layout_width="wrap_content"
@@ -125,26 +170,26 @@
                 app:is_horizontal="false"
                 app:track_length="150dp"
                 app:track_width="5dp"
-                app:track_color="@android:color/holo_orange_light"
+                app:track_color="@color/colorPrimary"
                 app:indicator_radius="9dp"
-                app:indicator_color="@color/colorAccent"
-                app:bubble_color="@android:color/holo_blue_light"
+                app:indicator_color="@color/colorLightPink"
+                app:bubble_color="@color/colorPrimary"
                 app:bubble_height="25dp"
                 app:bubble_width="40dp"
-                app:bubble_text_size="15sp"
-                app:bubble_text_color="@android:color/holo_red_light"
+                app:bubble_text_size="12sp"
+                app:bubble_text_color="@color/colorLightPink"
                 app:min_value="0"
                 app:max_value="100"
-                app:value_text_size="16sp"
-                app:value_text_color="@color/colorPrimary"/>
+                app:value_text_size="14sp"
+                app:value_text_color="@color/colorStatePageText"/>
             <TextView
                 android:id="@+id/lift_height_txt"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="升降台高度"
                 android:layout_gravity="center_horizontal"
-                android:textSize="15sp"
-                android:textColor="@color/colorPrimary"
+                android:textSize="14sp"
+                android:textColor="@color/colorStatePageText"
                 />
         </LinearLayout>
 
@@ -154,7 +199,7 @@
             android:layout_height="wrap_content"
             android:orientation="vertical">
             <cn.iscas.xlab.xbotplayer.customview.CustomSeekBar
-                android:id="@+id/seekbar_cemera_degree"
+                android:id="@+id/seekbar_camera_degree"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center_horizontal"
@@ -162,26 +207,26 @@
                 app:is_horizontal="false"
                 app:track_length="150dp"
                 app:track_width="5dp"
-                app:track_color="@android:color/holo_orange_light"
+                app:track_color="@color/colorPrimary"
                 app:indicator_radius="9dp"
-                app:indicator_color="@color/colorAccent"
-                app:bubble_color="@android:color/holo_blue_light"
+                app:indicator_color="@color/colorLightPink"
+                app:bubble_color="@color/colorPrimary"
                 app:bubble_height="25dp"
                 app:bubble_width="40dp"
-                app:bubble_text_size="15sp"
-                app:bubble_text_color="@android:color/holo_red_light"
+                app:bubble_text_size="12sp"
+                app:bubble_text_color="@color/colorLightPink"
                 app:min_value="-45"
                 app:max_value="45"
-                app:value_text_size="16sp"
-                app:value_text_color="@color/colorPrimary"/>
+                app:value_text_size="14sp"
+                app:value_text_color="@color/colorStatePageText"/>
             <TextView
                 android:id="@+id/camera_degree_txt"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center_horizontal"
                 android:text="摄像头角度"
-                android:textSize="15sp"
-                android:textColor="@color/colorPrimary"
+                android:textSize="14sp"
+                android:textColor="@color/colorStatePageText"
                 />
         </LinearLayout>
 

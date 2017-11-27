@@ -53,7 +53,8 @@ public class RosConnectionService extends Service{
     private boolean isConnected = false;
     private Timer rosConnectionTimer;
     private TimerTask connectionTask;
-
+    //上一次更新机器人状态界面的时间
+    private long lastUpdateStateTime;
 
     public class ServiceBinder extends Binder {
         public boolean isConnected(){
@@ -113,7 +114,6 @@ public class RosConnectionService extends Service{
                         e.printStackTrace();
                     }
                     rosBridgeClient.send(subscribeMuseumPos.toString());
-
                 } else {//取消订阅
                     JSONObject subscribeMuseumPos = new JSONObject();
                     try {
@@ -123,6 +123,9 @@ public class RosConnectionService extends Service{
                         e.printStackTrace();
                     }
                     rosBridgeClient.send(subscribeMuseumPos.toString());
+                }
+                if (topic.equals(Constant.SUBSCRIBE_TOPIC_ROBOT_STATE)) {
+                    lastUpdateStateTime = System.currentTimeMillis();
                 }
             }
         }
@@ -148,7 +151,6 @@ public class RosConnectionService extends Service{
 
         /**
          * 发布Message控制云台旋转角度和摄像头角度
-         * 如果值为-1则表示不控制这个参数
          * @param cloudDegree  云台角度
          * @param cameraDegree 摄像头角度
          */
@@ -166,6 +168,30 @@ public class RosConnectionService extends Service{
             }
             rosBridgeClient.send(body.toString());
             Log.v(TAG, "publish "+Constant.PUBLISH_TOPIC_CMD_CLOUD_CAMERA+" to Ros Server :\n" + body.toString());
+        }
+
+        /**
+         * 发布Message控制电机电源开关
+         * @param activate true 表示打开电源，false表示关闭
+         */
+        public void sendElectricMachineryMsg(boolean activate) {
+            JSONObject msg = new JSONObject();
+            JSONObject body = new JSONObject();
+            try {
+                if (activate) {
+                    msg.put("power", true);
+                } else {
+                    msg.put("power", false);
+                }
+                body.put("op", "publish");
+                body.put("topic", Constant.PUBLISH_TOPIC_CMD_MACHINERY_POWER);
+                body.put("msg", msg);
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
+            rosBridgeClient.send(body.toString());
+            Log.v(TAG, "publish "+Constant.PUBLISH_TOPIC_CMD_MACHINERY_POWER+" to Ros Server :\n" + body.toString());
+
         }
 
         public void disConnect() {
@@ -281,17 +307,20 @@ public class RosConnectionService extends Service{
                 e.printStackTrace();
             }
         } else if (topicName.equals(Constant.SUBSCRIBE_TOPIC_ROBOT_STATE)) {
-            try {
-                JSONObject responseObj = new JSONObject(response);
-                JSONObject msg = responseObj.getJSONObject("data");
-                int powerPercent = msg.getInt("power_percent");
-                int heightPercent = msg.getInt("height_percent");
-                int cloudDegree = msg.getInt("cloud_degree");
-                int cameraDegree = msg.getInt("camera_degree");
-                EventBus.getDefault().post(new RobotState(powerPercent, heightPercent, cloudDegree, cameraDegree));
-
-            } catch (JSONException e) {
-                e.printStackTrace();
+            long currentTime = System.currentTimeMillis();
+            //5秒更新一次界面，如果更新太快的话，则影响实际控制指令的发出
+            if (currentTime - lastUpdateStateTime > 5000) {
+                try {
+                    JSONObject responseObj = new JSONObject(response);
+                    int powerPercent = responseObj.getInt("power_percent");
+                    int heightPercent = responseObj.getInt("height_percent");
+                    int cloudDegree = responseObj.getInt("cloud_degree");
+                    int cameraDegree = responseObj.getInt("camera_degree");
+                    EventBus.getDefault().post(new RobotState(powerPercent, heightPercent, cloudDegree, cameraDegree));
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+                lastUpdateStateTime = currentTime;
             }
         }
 
