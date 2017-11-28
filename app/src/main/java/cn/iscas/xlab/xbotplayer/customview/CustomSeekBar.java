@@ -233,7 +233,7 @@ public class CustomSeekBar extends View {
             } else {
                 centerX = getPaddingLeft()+bubbleWidth / 2+trackLength/2;
             }
-            centerY = getPaddingTop()+bubbleHeight+triangleHeight/2+bigIndicatorRadius;
+            centerY = getPaddingTop()+bubbleHeight+triangleHeight+bigIndicatorRadius;
             trackLeft = centerX - trackLength / 2;
             trackRight = centerX + trackLength / 2;
             trackTop = centerY - trackWidth / 2;
@@ -274,7 +274,8 @@ public class CustomSeekBar extends View {
                 float bubbleRectTop = triangleStartY - triangleHeight - bubbleHeight;
                 float bubbleRectRight = triangleStartX + bubbleWidth / 2;
                 float bubbleRectBottom = triangleStartY - triangleHeight;
-                canvas.drawRect(bubbleRectLeft, bubbleRectTop, bubbleRectRight, bubbleRectBottom, bubblePaint);
+                canvas.drawRoundRect(bubbleRectLeft, bubbleRectTop, bubbleRectRight, bubbleRectBottom,
+                        bubbleWidth/8,bubbleHeight/6,bubblePaint);
 
                 String tip = String.valueOf(progressToRealValue(progress));
                 bubbleTextPaint.getTextBounds(tip, 0, tip.length(), bubbleTextBounds);
@@ -295,7 +296,7 @@ public class CustomSeekBar extends View {
             } else {
                 centerY = getPaddingTop()+bubbleHeight / 2+trackLength/2;
             }
-            centerX =getPaddingLeft()+bubbleWidth+triangleHeight+bigIndicatorRadius/2;
+            centerX =getPaddingLeft()+bubbleWidth+triangleHeight+bigIndicatorRadius;
 
             trackLeft = centerX - trackWidth / 2;
             trackRight = centerX + trackWidth / 2;
@@ -334,7 +335,8 @@ public class CustomSeekBar extends View {
                 float bubbleRectRight = triangleStartX - triangleHeight;
                 float bubbleRectTop = triangleStartY - bubbleHeight / 2;
                 float bubbleRectBottom = triangleStartY + bubbleHeight / 2;
-                canvas.drawRect(bubbleRectLeft, bubbleRectTop, bubbleRectRight, bubbleRectBottom, bubblePaint);
+                canvas.drawRoundRect(bubbleRectLeft, bubbleRectTop, bubbleRectRight, bubbleRectBottom,
+                        bubbleWidth/8,bubbleHeight/6,bubblePaint);
                 String tip = String.valueOf(progressToRealValue(progress));
                 bubbleTextPaint.getTextBounds(tip, 0, tip.length(), bubbleTextBounds);
                 canvas.drawText(tip, bubbleRectLeft + bubbleWidth / 2 - bubbleTextBounds.width() / 2, triangleStartY + bubbleTextBounds.height() / 2, bubbleTextPaint);
@@ -519,19 +521,18 @@ public class CustomSeekBar extends View {
         if (isHorizontal) {
             return  (gap * progress / 100) + minValue;
         }
-
-        return maxValue - (gap * progress / 100);
+//        Log.i("test", "progress:" + progress);
+//        Log.i("test", "realValue:" + (maxValue - Math.round(gap * progress / 100)));
+        return maxValue - Math.round(gap * progress / 100);
     }
 
     private int realValueToProgress(int realValue) {
         int gap = maxValue - minValue;
         int result;
         if (isHorizontal) {
-            //ok
             result = (realValue - minValue) * 100 / gap;
         } else {
-            //?
-            result = (((maxValue - realValue ) *100/ gap));
+            result = Math.round((maxValue - realValue ) *100/ gap);
         }
 
         return result;

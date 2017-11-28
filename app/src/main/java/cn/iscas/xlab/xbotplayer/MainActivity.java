@@ -15,8 +15,11 @@
  */
 package cn.iscas.xlab.xbotplayer;
 
+import android.annotation.TargetApi;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.content.res.ColorStateList;
+import android.graphics.Color;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.support.annotation.NonNull;
@@ -60,6 +63,7 @@ public class MainActivity extends AppCompatActivity {
     private TextView pageTitle;
     private ImageButton settingButton;
 
+    @TargetApi(23)
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -112,8 +116,15 @@ public class MainActivity extends AppCompatActivity {
                     break;
             }
         }
-
-
+        ColorStateList list = new ColorStateList(new int[][]{
+                {android.R.attr.state_checked},
+                {android.R.attr.state_enabled},
+        }, new int[]{
+                getResources().getColor(R.color.colorPrimary, null),
+                Color.GRAY
+        });
+        bottomNavigationView.setItemIconTintList(list);
+        bottomNavigationView.setItemTextColor(list);
     }
 
     private void initConfiguration() {
@@ -152,6 +163,8 @@ public class MainActivity extends AppCompatActivity {
                                 .show(robotStateFragment)
                                 .commit();
                         selectedNavItem = 0;
+//                        bottomNavigationView.setForeground();
+//                        bottomNavigationView.setItemIconTintList();
                         break;
                     case R.id.controller:
                         pageTitle.setText("控制界面");

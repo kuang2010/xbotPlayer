@@ -11,7 +11,6 @@
         android:layout_height="wrap_content"
         android:layout_centerHorizontal="true"
         android:background="@drawable/background"
-        android:padding="20dp"
         app:radius="50dp"
         app:normal_state_color="@color/colorPrimary"
         app:mid_state_color="#ff8f00"
@@ -21,18 +20,6 @@
         app:text_size="26sp"
         app:text_color="@android:color/white"
         />
-
-    <!--<TextView-->
-        <!--android:id="@+id/battery_txt"-->
-        <!--android:layout_width="wrap_content"-->
-        <!--android:layout_height="wrap_content"-->
-        <!--android:layout_centerHorizontal="true"-->
-        <!--android:layout_below="@id/battery_view"-->
-        <!--android:text="电量"-->
-        <!--android:layout_margin="2dp"-->
-        <!--android:textSize="14sp"-->
-        <!--android:textColor="@color/colorStatePageText"-->
-        <!--/>-->
 
     <View
         android:id="@+id/divider1"
@@ -58,7 +45,7 @@
             android:textSize="14sp"
             android:textColor="@color/colorStatePageText"
             android:layout_centerVertical="true"
-            android:layout_marginEnd="17dp"
+            android:layout_marginEnd="10dp"
             android:text="电机电源"/>
         <Switch
             android:id="@+id/switcher"
@@ -78,31 +65,14 @@
         android:layout_centerHorizontal="true"
         android:layout_below="@id/layout_item1"/>
 
-    <Button
-        android:id="@+id/bt1"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:background="#ffffff"
-        android:alpha="0"
-        android:layout_alignParentEnd="true"
-        android:text="+6"/>
-
-    <Button
-        android:id="@+id/bt2"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:background="#ffffff"
-        android:alpha=" 0"
-        android:layout_alignParentEnd="true"
-        android:layout_below="@id/bt1"
-        android:text="-6"/>
-
     <RelativeLayout
         android:id="@+id/layout_item2"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_below="@id/divider2"
-        android:paddingStart="30dp">
+        android:paddingStart="30dp"
+        android:paddingTop="6dp"
+        android:paddingBottom="16dp">
 
         <TextView
             android:id="@+id/cloud_degree_txt"
@@ -110,7 +80,6 @@
             android:layout_height="wrap_content"
             android:text="云台角度"
             android:layout_centerVertical="true"
-            android:layout_marginBottom="5dp"
             android:textSize="14sp"
             android:textColor="@color/colorStatePageText"
             />
@@ -120,8 +89,8 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="center_horizontal"
-            android:layout_margin="3dp"
             android:layout_toEndOf="@id/cloud_degree_txt"
+            android:paddingLeft="10dp"
             app:is_horizontal="true"
             app:track_length="200dp"
             app:track_width="5dp"
@@ -129,8 +98,8 @@
             app:indicator_radius="9dp"
             app:indicator_color="@color/colorLightPink"
             app:bubble_color="@color/colorPrimary"
-            app:bubble_height="25dp"
-            app:bubble_width="40dp"
+            app:bubble_height="20dp"
+            app:bubble_width="30dp"
             app:bubble_text_size="12sp"
             app:bubble_text_color="@color/colorLightPink"
             app:min_value="-90"
@@ -155,27 +124,28 @@
         android:layout_height="wrap_content"
         android:layout_centerHorizontal="true"
         android:orientation="horizontal"
+        android:layout_marginTop="12dp"
         android:layout_below="@id/divider3">
 
         <LinearLayout
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:orientation="vertical">
+            android:orientation="vertical"
+            android:layout_marginEnd="40dp">
             <cn.iscas.xlab.xbotplayer.customview.CustomSeekBar
                 android:id="@+id/seekbar_lift_height"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center_horizontal"
-                android:layout_margin="10dp"
                 app:is_horizontal="false"
-                app:track_length="150dp"
+                app:track_length="170dp"
                 app:track_width="5dp"
                 app:track_color="@color/colorPrimary"
                 app:indicator_radius="9dp"
                 app:indicator_color="@color/colorLightPink"
                 app:bubble_color="@color/colorPrimary"
-                app:bubble_height="25dp"
-                app:bubble_width="40dp"
+                app:bubble_height="20dp"
+                app:bubble_width="30dp"
                 app:bubble_text_size="12sp"
                 app:bubble_text_color="@color/colorLightPink"
                 app:min_value="0"
@@ -203,16 +173,15 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center_horizontal"
-                android:layout_margin="10dp"
                 app:is_horizontal="false"
-                app:track_length="150dp"
+                app:track_length="170dp"
                 app:track_width="5dp"
                 app:track_color="@color/colorPrimary"
                 app:indicator_radius="9dp"
                 app:indicator_color="@color/colorLightPink"
                 app:bubble_color="@color/colorPrimary"
-                app:bubble_height="25dp"
-                app:bubble_width="40dp"
+                app:bubble_height="20dp"
+                app:bubble_width="30dp"
                 app:bubble_text_size="12sp"
                 app:bubble_text_color="@color/colorLightPink"
                 app:min_value="-45"

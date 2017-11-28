@@ -9,7 +9,6 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Button;
 import android.widget.Switch;
 import android.widget.Toast;
 
@@ -36,8 +35,6 @@ public class RobotStateFragment extends Fragment implements RobotStateContract.V
     private RobotStateContract.Presenter presenter;
     private BroadcastReceiver receiver;
     private Switch switcher;
-    private Button bt1,bt2;
-
 
     public RobotStateFragment() {
 
@@ -53,9 +50,6 @@ public class RobotStateFragment extends Fragment implements RobotStateContract.V
         cameraDegreeSeekBar = (CustomSeekBar) view.findViewById(R.id.seekbar_camera_degree);
         switcher = (Switch) view.findViewById(R.id.switcher);
 
-        bt1 = (Button) view.findViewById(R.id.bt1);
-        bt2 = (Button) view.findViewById(R.id.bt2);
-
         initListeners();
 
         return view;
@@ -67,26 +61,6 @@ public class RobotStateFragment extends Fragment implements RobotStateContract.V
     }
 
     private void initListeners() {
-        //TODO :这些后面要去掉
-        bt1.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                batteryView.setPercent(batteryView.getPercent() + 6);
-            }
-        });
-        bt2.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                batteryView.setPercent(batteryView.getPercent() - 6);
-            }
-        });
-
-        batteryView.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                batteryView.startAnim();
-            }
-        });
 
         switcher.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -109,10 +83,6 @@ public class RobotStateFragment extends Fragment implements RobotStateContract.V
         liftHeightSeekBar.setOnSeekChangeListener(new CustomSeekBar.OnProgressChangeListener() {
             @Override
             public void onProgressChanged(int value) {
-                log("liftHeightSeekBar value changed:" + value);
-//                if (presenter != null && Config.isRosServerConnected) {
-//                    presenter.publishLiftMsg(value);
-//                }
             }
 
             @Override
@@ -132,16 +102,11 @@ public class RobotStateFragment extends Fragment implements RobotStateContract.V
         cloudDegreeSeekBar.setOnSeekChangeListener(new CustomSeekBar.OnProgressChangeListener() {
             @Override
             public void onProgressChanged(int value) {
-                log("cloudDegreeSeekBar value changed:" + value);
-//                if (presenter != null && Config.isRosServerConnected ) {
-//                    presenter.publishCloudCameraMsg(value, cameraDegreeSeekBar.getRealValue());
-//                }
             }
 
             @Override
             public void onProgressChangeCompleted(int value) {
                 log("cloudDegreeSeekBar value change complete :" + value);
-
                 if (presenter != null && Config.isRosServerConnected ) {
                     presenter.publishCloudCameraMsg(value,  cameraDegreeSeekBar.getRealValue());
                 }else {
@@ -156,17 +121,13 @@ public class RobotStateFragment extends Fragment implements RobotStateContract.V
         cameraDegreeSeekBar.setOnSeekChangeListener(new CustomSeekBar.OnProgressChangeListener() {
             @Override
             public void onProgressChanged(int value) {
-                log("cameraDegreeSeekBar value changed:" + value);
-//                if (presenter != null && Config.isRosServerConnected ) {
-//                    presenter.publishCloudCameraMsg(cameraDegreeSeekBar.getRealValue(),value);
-//                }
             }
 
             @Override
             public void onProgressChangeCompleted(int value) {
                 log("cameraDegreeSeekBar value change complete:" + value);
                 if (presenter != null && Config.isRosServerConnected ) {
-                    presenter.publishCloudCameraMsg(cameraDegreeSeekBar.getRealValue(),value);
+                    presenter.publishCloudCameraMsg(cloudDegreeSeekBar.getRealValue(),value);
                 }else {
                     Toast.makeText(getContext(), "Ros服务器未连接", Toast.LENGTH_SHORT).show();
                 }

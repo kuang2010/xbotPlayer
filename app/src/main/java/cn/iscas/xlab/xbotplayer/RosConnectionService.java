@@ -316,6 +316,7 @@ public class RosConnectionService extends Service{
                     int heightPercent = responseObj.getInt("height_percent");
                     int cloudDegree = responseObj.getInt("cloud_degree");
                     int cameraDegree = responseObj.getInt("camera_degree");
+
                     EventBus.getDefault().post(new RobotState(powerPercent, heightPercent, cloudDegree, cameraDegree));
                 } catch (JSONException e) {
                     e.printStackTrace();
