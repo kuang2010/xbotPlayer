@@ -203,12 +203,12 @@ public class RockerView extends View{
             case MotionEvent.ACTION_UP:
             case MotionEvent.ACTION_CANCEL:
                 callbackFinish();
-                float upX = motionEvent.getX();
-                float upY = motionEvent.getY();
                 moveRocker(mCenterPoint.x, mCenterPoint.y);
                 getParent().requestDisallowInterceptTouchEvent(false);
-//                log("抬起位置：" + upX + "," + upY);
                 break;
+            default:
+                break;
+
         }
         return true;
     }

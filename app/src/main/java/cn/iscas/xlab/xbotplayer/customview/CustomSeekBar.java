@@ -1,3 +1,18 @@
+/*
+ * Copyright 2017 lisongting
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 package cn.iscas.xlab.xbotplayer.customview;
 
 import android.animation.ValueAnimator;
@@ -20,6 +35,7 @@ import android.view.animation.AccelerateDecelerateInterpolator;
 import cn.iscas.xlab.xbotplayer.R;
 
 /**
+ * 自定义SeekBar，可支持水平和垂直布局
  * Created by lisongting on 2017/11/14.
  */
 
@@ -45,7 +61,7 @@ public class CustomSeekBar extends View {
     private Path trianglePath;
 
     //这个进度为[0,100]，但实际显示时要转换为minValue到maxValue之间的数值
-    private int progress = 21;
+    private int progress = 50;
 
     //当前滑块的x和y坐标
     private float posX,posY;
@@ -188,10 +204,10 @@ public class CustomSeekBar extends View {
 
     @Override
     public void onMeasure(int widthMeasureSpec,int heightMeasureSpec) {
-        int widthMode = MeasureSpec.getMode(widthMeasureSpec);
-        int widthSize = MeasureSpec.getSize(widthMeasureSpec);
-        int heightMode = MeasureSpec.getMode(heightMeasureSpec);
-        int heightSize = MeasureSpec.getSize(heightMeasureSpec);
+//        int widthMode = MeasureSpec.getMode(widthMeasureSpec);
+//        int widthSize = MeasureSpec.getSize(widthMeasureSpec);
+//        int heightMode = MeasureSpec.getMode(heightMeasureSpec);
+//        int heightSize = MeasureSpec.getSize(heightMeasureSpec);
 
         int width = 0;
         int height = 0;
@@ -523,7 +539,7 @@ public class CustomSeekBar extends View {
         }
 //        Log.i("test", "progress:" + progress);
 //        Log.i("test", "realValue:" + (maxValue - Math.round(gap * progress / 100)));
-        return maxValue - Math.round(gap * progress / 100);
+        return maxValue - gap * progress / 100;
     }
 
     private int realValueToProgress(int realValue) {
@@ -532,7 +548,7 @@ public class CustomSeekBar extends View {
         if (isHorizontal) {
             result = (realValue - minValue) * 100 / gap;
         } else {
-            result = Math.round((maxValue - realValue ) *100/ gap);
+            result = (maxValue - realValue ) *100/ gap;
         }
 
         return result;

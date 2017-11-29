@@ -25,7 +25,7 @@ public class Config {
 
     public static String ROS_SERVER_IP = "192.168.0.135";
 
-    public static String ROS_SERVER_PORT = "9090";
+    public static final String ROS_SERVER_PORT = "9090";
 
     public static double speed = 0.3;
 
