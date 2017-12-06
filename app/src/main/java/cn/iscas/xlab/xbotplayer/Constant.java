@@ -33,4 +33,10 @@ public class Constant {
 
     //广播的Intentfilter
     public static final String ROS_RECEIVER_INTENTFILTER = "xbotplayer.rosconnection.receiver";
+
+    //rgb图像和深度图像的URL后缀
+    public static final String CAMERA_RGB_RTMP_SUFFIX = "/rgb";
+    public static final String CAMERA_DEPTH_RTMP_SUFFIX = "/depth";
+
+
 }

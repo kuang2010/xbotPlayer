@@ -15,10 +15,10 @@
  */
 package cn.iscas.xlab.xbotplayer.mvp.cemera;
 
-import android.graphics.Bitmap;
 import android.os.Binder;
 import android.support.annotation.NonNull;
 
+import cn.iscas.xlab.xbotplayer.entity.Twist;
 import cn.iscas.xlab.xbotplayer.mvp.BasePresenter;
 import cn.iscas.xlab.xbotplayer.mvp.BaseView;
 
@@ -32,17 +32,24 @@ public interface CameraContract  {
 
         void setServiceProxy(@NonNull Binder binder);
 
-        void subscribeCameraImage();
-
-        void unSubscribeCameraImage();
 
         void destroy();
+
+        /**
+         * 控制机器人移动
+         * @param twist 控制信息
+         */
+        void publishCommand(Twist twist);
     }
 
     interface View extends BaseView<Presenter> {
 
-        void updateRGBImage(Bitmap bitmap);
 
+        void showLoading();
+
+        void hideLoading();
+
+        void showRetry();
 
     }
 

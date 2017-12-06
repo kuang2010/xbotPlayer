@@ -101,7 +101,7 @@ public class MapFragment extends Fragment implements MapContract.View{
     @Override
     public void showLoading() {
         refreshLayout.setRefreshing(true);
-        Toast.makeText(getContext(), "等待地图数据更新，请稍后", Toast.LENGTH_LONG).show();
+        Toast.makeText(getContext(), "等待地图数据更新，请稍候", Toast.LENGTH_LONG).show();
     }
 
     @Override

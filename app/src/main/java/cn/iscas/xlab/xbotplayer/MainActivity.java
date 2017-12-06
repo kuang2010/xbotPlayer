@@ -107,10 +107,10 @@ public class MainActivity extends AppCompatActivity {
                     bottomNavigationView.setSelectedItemId(R.id.robot_state);
                     break;
                 case 1:
-                    bottomNavigationView.setSelectedItemId(R.id.controller);
+                    bottomNavigationView.setSelectedItemId(R.id.camera);
                     break;
                 case 2:
-                    bottomNavigationView.setSelectedItemId(R.id.camera);
+                    bottomNavigationView.setSelectedItemId(R.id.map);
                     break;
                 default:
                     break;
@@ -166,16 +166,6 @@ public class MainActivity extends AppCompatActivity {
 //                        bottomNavigationView.setForeground();
 //                        bottomNavigationView.setItemIconTintList();
                         break;
-                    case R.id.controller:
-                        pageTitle.setText("控制界面");
-                        mapFragment.hideLoading();
-                        fragmentManager.beginTransaction()
-                                .hide(cameraFragment)
-                                .hide(robotStateFragment)
-                                .show(mapFragment)
-                                .commit();
-                        selectedNavItem = 1;
-                        break;
                     case R.id.camera:
                         pageTitle.setText("摄像头");
                         mapFragment.hideLoading();
@@ -183,6 +173,16 @@ public class MainActivity extends AppCompatActivity {
                                 .hide(mapFragment)
                                 .hide(robotStateFragment)
                                 .show(cameraFragment)
+                                .commit();
+                        selectedNavItem = 1;
+                        break;
+                    case R.id.map:
+                        pageTitle.setText("2D地图");
+                        mapFragment.hideLoading();
+                        fragmentManager.beginTransaction()
+                                .hide(cameraFragment)
+                                .hide(robotStateFragment)
+                                .show(mapFragment)
                                 .commit();
                         selectedNavItem = 2;
                         break;

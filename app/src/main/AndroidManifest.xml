@@ -15,7 +15,8 @@
   ~ limitations under the License.
   -->
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="cn.iscas.xlab.xbotplayer">
+    package="cn.iscas.xlab.xbotplayer"
+    >
 
     <uses-permission android:name="android.permission.INTERNET" />
     <application
@@ -35,8 +36,15 @@
             </intent-filter>
         </activity>
         <activity android:name=".SettingsActivity" />
+        <activity android:name=".mvp.cemera.FullScreenVideoActivity" />
         <service android:name=".RosConnectionService" />
 
     </application>
+
+    <supports-screens
+        android:smallScreens="true"
+        android:normalScreens="true"
+        android:largeScreens="true"
+        android:anyDensity="true" />
 
 </manifest>
