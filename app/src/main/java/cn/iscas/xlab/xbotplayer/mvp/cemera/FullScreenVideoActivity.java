@@ -160,7 +160,7 @@ public class FullScreenVideoActivity extends AppCompatActivity implements Camera
         DisplayMetrics metrics = new DisplayMetrics();
         display.getMetrics(metrics);
         holder = surfaceView.getHolder();
-        float ratio = metrics.heightPixels / 480;
+        float ratio = metrics.heightPixels / 480F;
         holder.setFixedSize((int) (640*ratio),metrics.heightPixels);
         log("densityDpi:" + metrics.densityDpi);
         log("density:" + metrics.density);

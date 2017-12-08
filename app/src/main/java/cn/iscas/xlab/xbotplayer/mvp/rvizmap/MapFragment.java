@@ -29,17 +29,12 @@ import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.Toast;
 
-import java.util.Timer;
-import java.util.TimerTask;
-
 import cn.iscas.xlab.xbotplayer.App;
 import cn.iscas.xlab.xbotplayer.Config;
 import cn.iscas.xlab.xbotplayer.Constant;
 import cn.iscas.xlab.xbotplayer.R;
 import cn.iscas.xlab.xbotplayer.RosConnectionReceiver;
 import cn.iscas.xlab.xbotplayer.customview.MapView;
-import cn.iscas.xlab.xbotplayer.customview.RockerView;
-import cn.iscas.xlab.xbotplayer.entity.Twist;
 
 /**
  * Created by lisongting on 2017/10/9.
@@ -55,13 +50,8 @@ public class MapFragment extends Fragment implements MapContract.View{
     private boolean isMapOpened;
     private SwipeRefreshLayout refreshLayout;
     private RosConnectionReceiver receiver;
-    private RockerView rockerView;
-    private float speed ;
-    private Timer timer;
-    private volatile Twist rockerTwist;
 
     public MapFragment(){
-        rockerTwist = new Twist();
         log("MapFragment() Created()");
     }
 
@@ -73,7 +63,6 @@ public class MapFragment extends Fragment implements MapContract.View{
         toggleMap = (Button) view.findViewById(R.id.toggleMap);
         resetButton = (Button) view.findViewById(R.id.reset);
         refreshLayout = (SwipeRefreshLayout) view.findViewById(R.id.refresh_layout);
-        rockerView = (RockerView) view.findViewById(R.id.rocker_view);
         initView();
         initListeners();
 
@@ -158,67 +147,6 @@ public class MapFragment extends Fragment implements MapContract.View{
 
 
         });
-
-        //todo:这里或许要删除
-        rockerView.setVisibility(View.INVISIBLE);
-
-//        rockerView.setOnDirectionChangeListener(new RockerView.OnDirectionChangeListener() {
-//            @Override
-//            public void onStart() {
-//                if (!Config.isRosServerConnected) {
-//                    Toast.makeText(getContext(), "Ros服务器未连接", Toast.LENGTH_SHORT).show();
-//                } else {
-//                    startTwistPublisher();
-//                }
-//            }
-//
-//            @Override
-//            public void onDirectionChange(RockerView.Direction direction) {
-////                log("当前的摇杆方向：" + direction.name());
-//                if (!Config.isRosServerConnected) {
-//                    return;
-//                }
-//                speed = (float) Config.speed;
-//                switch (direction) {
-//                    case DIRECTION_UP:
-//                        rockerTwist = new Twist(speed, 0F, 0F, 0F, 0F, 0F);
-//                        break;
-//                    case DIRECTION_DOWN:
-//                        rockerTwist = new Twist(-speed, 0F, 0F, 0F, 0F, 0F);
-//                        break;
-//                    case DIRECTION_LEFT:
-//                        rockerTwist = new Twist(0F, 0F, 0F, 0F, 0F, speed*3F);
-//                        break;
-//                    case DIRECTION_UP_LEFT:
-//                        rockerTwist = new Twist(speed, 0F, 0F, 0F, 0F, speed*3F);
-//                        break;
-//                    case DIRECTION_RIGHT:
-//                        rockerTwist = new Twist(0F, 0F, 0F, 0F, 0F, -speed*3F);
-//                        break;
-//                    case DIRECTION_UP_RIGHT:
-//                        rockerTwist = new Twist(speed, 0F, 0F, 0F, 0F, -speed*3F);
-//                        break;
-//                    case DIRECTION_DOWN_LEFT:
-//                        rockerTwist = new Twist(-speed, 0F, 0F, 0F, 0F, -speed*3F);
-//                        break;
-//                    case DIRECTION_DOWN_RIGHT:
-//                        rockerTwist = new Twist(-speed, 0F, 0F, 0F, 0F, speed*3F);
-//                        break;
-//                    default:
-//                        break;
-//                }
-//            }
-//
-//            @Override
-//            public void onFinish() {
-//                if (!Config.isRosServerConnected) {
-//                    return;
-//                }
-//                rockerTwist = new Twist(0F, 0F, 0F, 0F, 0F, 0F);
-//                presenter.publishCommand(rockerTwist);
-//                cancelTimerTask();
-//            }
-//        });
     }
 
 
@@ -228,7 +156,6 @@ public class MapFragment extends Fragment implements MapContract.View{
             public void onSuccess() {
                 if (!Config.isRosServerConnected) {
                     Toast.makeText(getContext(), "Ros服务端连接成功", Toast.LENGTH_SHORT).show();
-                    rockerView.setAvailable(true);
                     App app = (App) (getActivity().getApplication());
                     if (presenter == null) {
                         presenter = new MapPresenter(MapFragment.this);
@@ -240,7 +167,6 @@ public class MapFragment extends Fragment implements MapContract.View{
 
             @Override
             public void onFailure() {
-                rockerView.setAvailable(false);
                 Config.isRosServerConnected = false;
             }
         });
@@ -248,21 +174,6 @@ public class MapFragment extends Fragment implements MapContract.View{
         IntentFilter filter = new IntentFilter(Constant.ROS_RECEIVER_INTENTFILTER);
         getActivity().registerReceiver(receiver,filter);
 
-    }
-
-    public synchronized void startTwistPublisher() {
-        timer = new Timer();
-        timer.schedule(new TimerTask() {
-            @Override
-            public void run() {
-                presenter.publishCommand(rockerTwist);
-            }
-        },0,200);
-    }
-
-    public synchronized void cancelTimerTask() {
-        timer.cancel();
-        log("Stopped Control..TimerTask is canceled ");
     }
 
     @Override
@@ -273,11 +184,6 @@ public class MapFragment extends Fragment implements MapContract.View{
         }
         getActivity().unregisterReceiver(receiver);
         super.onDestroy();
-    }
-
-    @Override
-    public boolean isHided() {
-        return this.isHidden();
     }
 
     @Override
@@ -292,10 +198,6 @@ public class MapFragment extends Fragment implements MapContract.View{
                     presenter.setServiceProxy(app.getRosServiceProxy());
                     presenter.start();
                 }
-                rockerView.setAvailable(true);
-            } else {
-                rockerView.setAvailable(false);
-
             }
 
         }

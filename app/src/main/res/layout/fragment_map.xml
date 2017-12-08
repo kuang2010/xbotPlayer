@@ -16,7 +16,6 @@
   -->
 <android.support.v4.widget.SwipeRefreshLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:id="@+id/refresh_layout">
@@ -55,19 +54,6 @@
                 android:text="重置"/>
         </LinearLayout>
 
-        <cn.iscas.xlab.xbotplayer.customview.RockerView
-            android:id="@+id/rocker_view"
-            android:layout_width="130dp"
-            android:layout_height="130dp"
-            android:layout_marginLeft="20dp"
-            android:layout_marginBottom="10dp"
-            android:layout_alignParentBottom="true"
-            android:layout_alignParentLeft="true"
-            app:areaBackground="@drawable/default_background"
-            app:rockerBackground="@drawable/default_rocker"
-            app:unavailableDrawable="@drawable/rocker_unavailable"
-            app:rockerRadius="25dp"
-            />
     </RelativeLayout>
 </android.support.v4.widget.SwipeRefreshLayout>
 
