@@ -26,4 +26,6 @@
 
     <color name="colorLightPink">#E968A1</color>
     <color name="colorStatePageText">#333333</color>
+
+    <color name="videoBarColor">#aa616161</color>
 </resources>

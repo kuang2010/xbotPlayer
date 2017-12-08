@@ -17,8 +17,6 @@ package cn.iscas.xlab.xbotplayer.mvp.cemera;
 
 import android.content.Intent;
 import android.content.IntentFilter;
-import android.graphics.Canvas;
-import android.graphics.Color;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
@@ -78,10 +76,11 @@ public class CameraFragment extends Fragment implements CameraContract.View {
 
     private CameraContract.Presenter presenter;
     private SimpleAdapter simpleAdapter;
-    private String[] infoList = {"彩色图像","深度图像"};
+    private String[] videoList = {"彩色图像","深度图像"};
     private List<Map<String,String>> listData;
     private boolean isMenuOpened ;
     private boolean isLoadingFailed;
+    private boolean isPlaying;
 
     private Animation waitAnimation;
     private float speed ;
@@ -90,24 +89,36 @@ public class CameraFragment extends Fragment implements CameraContract.View {
     private IjkMediaPlayer mediaPlayer;
     private String rtmpAddress;
     private Handler handler;
-    private View.OnClickListener onClickListener;
     private String videoTitle ;
+    private int videoIndex = 0;
+
+    //用于隐藏菜单
+    private static final int MSG_FLAG_HIDEN_MENU = 1;
+    //用于显示超时
+    private static final int MSG_FLAG_LOADING = 2;
 
     public CameraFragment() {
         rockerTwist = new Twist();
-        rtmpAddress = "";
+        rtmpAddress = "rtmp://" + Config.ROS_SERVER_IP + Constant.CAMERA_RGB_RTMP_SUFFIX;
         handler = new Handler(new Handler.Callback() {
             @Override
             public boolean handleMessage(Message msg) {
-                if (topBar.getVisibility() == View.VISIBLE) {
+                if (msg.what == MSG_FLAG_HIDEN_MENU && topBar.getVisibility() == View.VISIBLE) {
                     topBar.setVisibility(View.GONE);
                     bottomBar.setVisibility(View.GONE);
                     listView.setVisibility(View.GONE);
                     isMenuOpened = false;
+                } else if (msg.what == MSG_FLAG_LOADING && infoView.getVisibility() == View.VISIBLE) {
+                    showLoadingFailed();
                 }
+
                 return true;
             }
         });
+        isLoadingFailed = false;
+        isMenuOpened = true;
+        isPlaying = false;
+        videoTitle = videoList[0];
     }
 
     @Override
@@ -125,7 +136,6 @@ public class CameraFragment extends Fragment implements CameraContract.View {
         infoImage = (ImageView)v.findViewById(R.id.info_image);
         infoText = (TextView) v.findViewById(R.id.info_text);
         title = (TextView) v.findViewById(R.id.tv_title);
-        isMenuOpened = true;
 
         initView();
         return v;
@@ -135,9 +145,9 @@ public class CameraFragment extends Fragment implements CameraContract.View {
     @Override
     public void initView() {
         listData = new ArrayList<>();
-        for(int i=0;i<infoList.length;i++) {
+        for(int i=0;i<videoList.length;i++) {
             Map<String, String> map = new HashMap<>();
-            map.put("text", infoList[i]);
+            map.put("text", videoList[i]);
             listData.add(map);
         }
 
@@ -151,12 +161,6 @@ public class CameraFragment extends Fragment implements CameraContract.View {
     }
 
     @Override
-    public void onStart() {
-        log("onStart()");
-        super.onStart();
-    }
-
-    @Override
     public void onActivityCreated(@Nullable Bundle savedInstanceState) {
         initBroadcastReceiver();
         super.onActivityCreated(savedInstanceState);
@@ -167,27 +171,37 @@ public class CameraFragment extends Fragment implements CameraContract.View {
     public void onResume() {
         log("onResume()");
         super.onResume();
-        presenter = new CameraPresenter(getContext(), this);
+        if (Config.isRosServerConnected) {
+            App app = (App) (getActivity().getApplication());
+            if (presenter == null) {
+                presenter = new CameraPresenter(getContext(),this);
+                presenter.start();
+            }
+            presenter.setServiceProxy(app.getRosServiceProxy());
+            rockerView.setAvailable(true);
+        } else {
+            rockerView.setAvailable(false);
+
+        }
         initOnClickListeners();
-
-        createMediaPlayer();
 //        App app = (App) (getActivity().getApplication());
-
     }
 
     private void initBroadcastReceiver() {
         receiver = new RosConnectionReceiver(new RosConnectionReceiver.RosCallback() {
             @Override
             public void onSuccess() {
+                rockerView.setAvailable(true);
+                App app = (App) (getActivity().getApplication());
+                if (presenter == null) {
+                    presenter = new CameraPresenter(getContext(),CameraFragment.this);
+                    presenter.start();
+                }
+                presenter.setServiceProxy(app.getRosServiceProxy());
                 if (!Config.isRosServerConnected) {
                     Toast.makeText(getContext(), "Ros服务端连接成功", Toast.LENGTH_SHORT).show();
-                    rockerView.setAvailable(true);
-                    App app = (App) (getActivity().getApplication());
-                    if (presenter == null) {
-                        presenter = new CameraPresenter(getContext(),CameraFragment.this);
-                        presenter.start();
-                    }
-                    presenter.setServiceProxy(app.getRosServiceProxy());
+
+
                 }
             }
 
@@ -204,19 +218,19 @@ public class CameraFragment extends Fragment implements CameraContract.View {
     }
 
     private void initOnClickListeners() {
-
         surfaceView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 if (!isMenuOpened) {
                     topBar.setVisibility(View.VISIBLE);
                     bottomBar.setVisibility(View.VISIBLE);
-                    handler.sendEmptyMessageDelayed(1, 5000);
+                    //5秒内无操作则隐藏菜单
+                    handler.sendEmptyMessageDelayed(MSG_FLAG_HIDEN_MENU, 5000);
                 } else {
                     topBar.setVisibility(View.GONE);
                     bottomBar.setVisibility(View.GONE);
                     listView.setVisibility(View.GONE);
-                    handler.removeMessages(1);
+                    handler.removeMessages(MSG_FLAG_HIDEN_MENU);
                 }
                 isMenuOpened = !isMenuOpened;
             }
@@ -226,7 +240,13 @@ public class CameraFragment extends Fragment implements CameraContract.View {
             @Override
             public void onClick(View v) {
                 if (isLoadingFailed) {
+                    if (videoIndex == 0) {
+                        rtmpAddress = "rtmp://" + Config.ROS_SERVER_IP + Constant.CAMERA_RGB_RTMP_SUFFIX;
+                    } else {
+                        rtmpAddress = "rtmp://" + Config.ROS_SERVER_IP + Constant.CAMERA_DEPTH_RTMP_SUFFIX;
+                    }
                     play(rtmpAddress);
+                    showLoading();
                     isLoadingFailed = false;
                 }
             }
@@ -240,12 +260,12 @@ public class CameraFragment extends Fragment implements CameraContract.View {
 
                 if (position == 0) {
                     addr.append(Config.ROS_SERVER_IP).append(Constant.CAMERA_RGB_RTMP_SUFFIX);
-                    videoTitle = infoList[0];
+                    videoIndex = 0;
                 } else {
                     addr.append(Config.ROS_SERVER_IP).append(Constant.CAMERA_DEPTH_RTMP_SUFFIX);
-                    videoTitle = infoList[1];
-
+                    videoIndex = 1;
                 }
+                videoTitle = videoList[videoIndex];
                 //如果选择的播放视频源与正在播放的不相同则开始播放，如果相同，则不播放
                 if (!rtmpAddress.equals(addr.toString())) {
                     rtmpAddress = addr.toString();
@@ -258,29 +278,48 @@ public class CameraFragment extends Fragment implements CameraContract.View {
         btPlayState.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if (mediaPlayer.isPlaying()) {
-                    btPlayState.setBackgroundResource(R.drawable.ic_pause);
-                    mediaPlayer.pause();
-                    mediaPlayer.release();
-                    Canvas c = new Canvas();
-                    c.drawColor(Color.BLACK);
-                    surfaceView.draw(c);
-                } else {
-                    if (rtmpAddress.length() == 0) {
-                        rtmpAddress = "rtmp://" + Config.ROS_SERVER_IP + Constant.CAMERA_RGB_RTMP_SUFFIX;
-                    }
-                    showLoading();
+                if (isPlaying) {
+                    //暂停播放，则把按钮设置为play
                     btPlayState.setBackgroundResource(R.drawable.ic_play);
+                    if (mediaPlayer != null) {
+                        mediaPlayer.pause();
+                        mediaPlayer.release();
+                    }
+                    isPlaying = false;
+                } else {
+                    //开始/恢复播放
+                    showLoading();
+                    if (videoIndex == 0) {
+                        rtmpAddress = "rtmp://" + Config.ROS_SERVER_IP + Constant.CAMERA_RGB_RTMP_SUFFIX;
+                    } else {
+                        rtmpAddress = "rtmp://" + Config.ROS_SERVER_IP + Constant.CAMERA_DEPTH_RTMP_SUFFIX;
+                    }
                     play(rtmpAddress);
                 }
+
             }
         });
 
         btFullScreen.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                Intent intent = new Intent(getContext(),FullScreenVideoActivity.class);
+                if (rtmpAddress.endsWith(Constant.CAMERA_RGB_RTMP_SUFFIX)) {
+                    intent.putExtra("video_type",Constant.VIDEO_TYPE_RGB);
+                } else if (rtmpAddress.endsWith(Constant.CAMERA_DEPTH_RTMP_SUFFIX)) {
+                    intent.putExtra("video_type", Constant.VIDEO_TYPE_DEPTH);
+                }
+                intent.putExtra("isPlaying", isPlaying);
 
-                startActivity(new Intent(getContext(),FullScreenVideoActivity.class));
+                if (mediaPlayer != null) {
+                    if (mediaPlayer.isPlaying()) {
+                        mediaPlayer.stop();
+                    }
+                    mediaPlayer.setDisplay(null);
+                    mediaPlayer.release();
+
+                }
+                startActivityForResult(intent, 1);
             }
 
         });
@@ -357,6 +396,29 @@ public class CameraFragment extends Fragment implements CameraContract.View {
 
     }
 
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if (data != null) {
+            int type = data.getIntExtra("video_type", -1);
+            isPlaying = data.getBooleanExtra("isPlaying", false);
+            if (type == Constant.VIDEO_TYPE_RGB) {
+                rtmpAddress = "rtmp://" + Config.ROS_SERVER_IP + Constant.CAMERA_RGB_RTMP_SUFFIX;
+                videoIndex = 0;
+            } else if (type ==Constant.VIDEO_TYPE_DEPTH) {
+                rtmpAddress = "rtmp://" + Config.ROS_SERVER_IP + Constant.CAMERA_DEPTH_RTMP_SUFFIX;
+                videoIndex = 1;
+            }
+            title.setText(videoList[videoIndex]);
+        }
+        if (isPlaying) {
+            showLoading();
+            play(rtmpAddress);
+        } else {
+            btPlayState.setBackgroundResource(R.drawable.ic_play);
+        }
+    }
+
     private void createMediaPlayer() {
         mediaPlayer = new IjkMediaPlayer();
 
@@ -370,13 +432,22 @@ public class CameraFragment extends Fragment implements CameraContract.View {
         mediaPlayer.setOption(IjkMediaPlayer.OPT_CATEGORY_PLAYER, "max_cached_duration", 3000);
         mediaPlayer.setOption(IjkMediaPlayer.OPT_CATEGORY_PLAYER, "infbuf", 1);
 
+        mediaPlayer.setOnPreparedListener(new IMediaPlayer.OnPreparedListener() {
+            @Override
+            public void onPrepared(IMediaPlayer iMediaPlayer) {
+                iMediaPlayer.setDisplay(surfaceView.getHolder());
+            }
+        });
+
         mediaPlayer.setOnInfoListener(new IMediaPlayer.OnInfoListener() {
             @Override
             public boolean onInfo(IMediaPlayer iMediaPlayer, int i, int i1) {
                 if (i == IMediaPlayer.MEDIA_INFO_VIDEO_RENDERING_START) {
                     hideLoading();
+                    isPlaying = true;
                     btPlayState.setBackgroundResource(R.drawable.ic_pause);
                     title.setText(videoTitle);
+//                    log("ijkMediaPlayer onInfo:" + i + " , " + i1);
                 }
                 return true;
             }
@@ -384,9 +455,9 @@ public class CameraFragment extends Fragment implements CameraContract.View {
         mediaPlayer.setOnErrorListener(new IMediaPlayer.OnErrorListener() {
             @Override
             public boolean onError(IMediaPlayer iMediaPlayer, int i, int i1) {
-                showRetry();
-                isLoadingFailed = true;
-                btPlayState.setBackgroundResource(R.drawable.ic_play);
+//                log("ijkMediaPlayer onError:" + i + " , " + i1);
+                showLoadingFailed();
+
                 return true;
             }
         });
@@ -394,36 +465,40 @@ public class CameraFragment extends Fragment implements CameraContract.View {
     }
 
     private void play(String rtmpAddress) {
-        if (mediaPlayer.isPlaying()) {
-            mediaPlayer.stop();
-            mediaPlayer.reset();
+        if (mediaPlayer != null) {
+            if (mediaPlayer.isPlaying()) {
+                mediaPlayer.stop();
+            }
+            mediaPlayer.setDisplay(null);
+            mediaPlayer.release();
+            mediaPlayer = null;
+
         }
+        createMediaPlayer();
         try {
             mediaPlayer.setDataSource(rtmpAddress);
         } catch (IOException e) {
-            showRetry();
+            showLoadingFailed();
             e.printStackTrace();
         }
         mediaPlayer.setDisplay(surfaceView.getHolder());
 
         mediaPlayer.prepareAsync();
-
     }
 
 
     @Override
     public void onHiddenChanged(boolean hidden) {
         log("isHidden:" + hidden);
-        log("idHidden:" + hidden);
         super.onHiddenChanged(hidden);
         if (!hidden ) {
             if (Config.isRosServerConnected) {
                 App app = (App) (getActivity().getApplication());
                 if (presenter == null) {
                     presenter = new CameraPresenter(getContext(),this);
-                    presenter.setServiceProxy(app.getRosServiceProxy());
                     presenter.start();
                 }
+                presenter.setServiceProxy(app.getRosServiceProxy());
                 rockerView.setAvailable(true);
             } else {
                 rockerView.setAvailable(false);
@@ -472,6 +547,20 @@ public class CameraFragment extends Fragment implements CameraContract.View {
         infoImage.setBackgroundResource(R.drawable.loading);
         infoImage.startAnimation(waitAnimation);
         infoText.setText(R.string.text_loading);
+        handler.sendEmptyMessageDelayed(MSG_FLAG_LOADING, 8000);
+    }
+
+    @Override
+    public void showLoadingFailed(){
+        isPlaying = false;
+        isLoadingFailed = true;
+        infoView.setVisibility(View.VISIBLE);
+        infoImage.clearAnimation();
+        infoImage.setBackgroundResource(R.drawable.retry);
+        infoText.setText(R.string.text_retry);
+        handler.removeMessages(MSG_FLAG_LOADING);
+        btPlayState.setBackgroundResource(R.drawable.ic_play);
+        Toast.makeText(getContext(), R.string.load_fail_check_config, Toast.LENGTH_SHORT).show();
     }
 
     @Override
@@ -481,11 +570,4 @@ public class CameraFragment extends Fragment implements CameraContract.View {
 
     }
 
-    @Override
-    public void showRetry() {
-        infoView.setVisibility(View.VISIBLE);
-        infoImage.clearAnimation();
-        infoImage.setBackgroundResource(R.drawable.retry);
-        infoText.setText(R.string.text_retry);
-    }
 }

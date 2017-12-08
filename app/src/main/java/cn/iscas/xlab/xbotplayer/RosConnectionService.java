@@ -91,7 +91,7 @@ public class RosConnectionService extends Service{
                     body.put("msg", message);
 
                     rosBridgeClient.send(body.toString());
-                    Log.v(TAG, "publish "+Constant.PUBLISH_TOPIC_CMD_MOVE+" to Ros Server :\n" + body.toString());
+                    //Log.v(TAG, "publish "+Constant.PUBLISH_TOPIC_CMD_MOVE+" to Ros Server :\n" + body.toString());
                 } catch (JSONException e) {
                     e.printStackTrace();
                 }
@@ -146,7 +146,7 @@ public class RosConnectionService extends Service{
                 e.printStackTrace();
             }
             rosBridgeClient.send(body.toString());
-            Log.v(TAG, "publish "+Constant.PUBLISH_TOPIC_CMD_LIFT+" to Ros Server :\n" + body.toString());
+            //Log.v(TAG, "publish "+Constant.PUBLISH_TOPIC_CMD_LIFT+" to Ros Server :\n" + body.toString());
         }
 
         /**
@@ -167,7 +167,7 @@ public class RosConnectionService extends Service{
                 e.printStackTrace();
             }
             rosBridgeClient.send(body.toString());
-            Log.v(TAG, "publish "+Constant.PUBLISH_TOPIC_CMD_CLOUD_CAMERA+" to Ros Server :\n" + body.toString());
+            //Log.v(TAG, "publish "+Constant.PUBLISH_TOPIC_CMD_CLOUD_CAMERA+" to Ros Server :\n" + body.toString());
         }
 
         /**
@@ -190,7 +190,7 @@ public class RosConnectionService extends Service{
                 e.printStackTrace();
             }
             rosBridgeClient.send(body.toString());
-            Log.v(TAG, "publish "+Constant.PUBLISH_TOPIC_CMD_MACHINERY_POWER+" to Ros Server :\n" + body.toString());
+            //Log.v(TAG, "publish "+Constant.PUBLISH_TOPIC_CMD_MACHINERY_POWER+" to Ros Server :\n" + body.toString());
 
         }
 
@@ -211,7 +211,7 @@ public class RosConnectionService extends Service{
             public void run() {
                 if (!isConnected) {
                     String rosURL = "ws://" + Config.ROS_SERVER_IP + ":" + Config.ROS_SERVER_PORT;
-                    Log.v(TAG, "Connecting to ROS Server: " + rosURL);
+                    //Log.v(TAG, "Connecting to ROS Server: " + rosURL);
                     rosBridgeClient = new ROSBridgeClient(rosURL);
                     boolean conneSucc = rosBridgeClient.connect(new ROSClient.ConnectionStatusListener() {
                         @Override
@@ -223,7 +223,7 @@ public class RosConnectionService extends Service{
 
                         @Override
                         public void onDisconnect(boolean normal, String reason, int code) {
-                            Log.v(TAG, "Ros ConnectionStatusListener--disconnect");
+                            //Log.v(TAG, "Ros ConnectionStatusListener--disconnect");
                             Intent broadcastIntent = new Intent(Constant.ROS_RECEIVER_INTENTFILTER);
                             Bundle data = new Bundle();
                             data.putInt("ros_conn_status", Constant.CONN_ROS_SERVER_ERROR);
@@ -319,7 +319,7 @@ public class RosConnectionService extends Service{
 
                     EventBus.getDefault().post(new RobotState(powerPercent, heightPercent, cloudDegree, cameraDegree));
                 } catch (JSONException e) {
-                    e.printStackTrace();
+//                    e.printStackTrace();
                 }
                 lastUpdateStateTime = currentTime;
             }

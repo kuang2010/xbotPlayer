@@ -159,7 +159,6 @@ public class RockerView extends View{
         if (0 == mRockerPosition.x || 0 == mRockerPosition.y) {
             mRockerPosition.set(mCenterPoint.x, mCenterPoint.y);
         }
-
         //画可移动区域
         Rect src = new Rect(0, 0, mAreaBitmap.getWidth(), mAreaBitmap.getHeight());
         Rect dst = new Rect(mCenterPoint.x - mAreaRadius, mCenterPoint.y - mAreaRadius, mCenterPoint.x + mAreaRadius, mCenterPoint.y + mAreaRadius);

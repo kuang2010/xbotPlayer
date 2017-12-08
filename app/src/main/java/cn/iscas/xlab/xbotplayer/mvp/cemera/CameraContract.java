@@ -47,9 +47,10 @@ public interface CameraContract  {
 
         void showLoading();
 
+        void showLoadingFailed();
+
         void hideLoading();
 
-        void showRetry();
 
     }
 

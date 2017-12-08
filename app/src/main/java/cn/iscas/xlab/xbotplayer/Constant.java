@@ -38,5 +38,8 @@ public class Constant {
     public static final String CAMERA_RGB_RTMP_SUFFIX = "/rgb";
     public static final String CAMERA_DEPTH_RTMP_SUFFIX = "/depth";
 
+    public static final int VIDEO_TYPE_RGB = 0;
+    public static final int VIDEO_TYPE_DEPTH = 1;
+
 
 }

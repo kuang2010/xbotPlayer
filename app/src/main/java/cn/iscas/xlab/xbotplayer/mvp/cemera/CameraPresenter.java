@@ -32,24 +32,22 @@ import io.reactivex.disposables.CompositeDisposable;
 public class CameraPresenter implements CameraContract.Presenter {
 
     public static final String TAG = "CameraPresenter";
-    private RosConnectionService.ServiceBinder serviceProxy;
     private CameraContract.View view;
     private Context context;
+    private RosConnectionService.ServiceBinder serviceProxy;
     private CompositeDisposable compositeDisposable;
+
 
 
     public CameraPresenter(Context context, CameraContract.View view) {
         this.context = context;
         this.view = view;
-        view.setPresenter(this);
         compositeDisposable = new CompositeDisposable();
-//        EventBus.getDefault().register(this);
     }
 
 
     @Override
     public void start() {
-
     }
 
 
@@ -57,40 +55,6 @@ public class CameraPresenter implements CameraContract.Presenter {
     public void setServiceProxy(@NonNull Binder binder) {
         serviceProxy = (RosConnectionService.ServiceBinder) binder;
     }
-
-
-//    public void onEvent(final String jsonString) throws JSONException{
-//        JSONObject object = new JSONObject(jsonString);
-//        if (!object.get("topicName").equals(Constant.SUBSCRIBE_TOPIC_RGB_IMAGE)) {
-//            return;
-//        }
-//        final String base64Image = object.getString("data");
-//        Disposable disposable = Observable.just(base64Image)
-//                .map(new Function<String, Bitmap>() {
-//                    @Override
-//                    public Bitmap apply(@io.reactivex.annotations.NonNull String s) throws Exception {
-//                        return ImageUtils.decodeBase64ToBitmap(base64Image);
-//                    }
-//                })
-//                .subscribeOn(Schedulers.newThread())
-//                .observeOn(AndroidSchedulers.mainThread())
-//                .subscribeWith(new DisposableObserver<Bitmap>() {
-//                    @Override
-//                    public void onNext(@io.reactivex.annotations.NonNull Bitmap bitmap) {
-//                        view.updateRGBImage(bitmap);
-//                    }
-//                    @Override
-//                    public void onError(@io.reactivex.annotations.NonNull Throwable e) {
-//                        log("onError");
-//                    }
-//                    @Override
-//                    public void onComplete() {
-//                        log("onComplete()");
-//                    }
-//                });
-//
-//        compositeDisposable.add(disposable);
-//    }
 
     @Override
     public void destroy() {
@@ -100,7 +64,11 @@ public class CameraPresenter implements CameraContract.Presenter {
 
     @Override
     public void publishCommand(Twist twist) {
-
+        if (serviceProxy != null) {
+            serviceProxy.publishCommand(twist);
+        }else {
+            Log.e("CameraPresenter", "RosConnectionService is null");
+        }
     }
 
     private void log(String string) {

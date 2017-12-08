@@ -155,65 +155,70 @@ public class MapFragment extends Fragment implements MapContract.View{
                     mapView.reset();
                 }
             }
+
+
         });
 
-        rockerView.setOnDirectionChangeListener(new RockerView.OnDirectionChangeListener() {
-            @Override
-            public void onStart() {
-                if (!Config.isRosServerConnected) {
-                    Toast.makeText(getContext(), "Ros服务器未连接", Toast.LENGTH_SHORT).show();
-                } else {
-                    startTwistPublisher();
-                }
-            }
+        //todo:这里或许要删除
+        rockerView.setVisibility(View.INVISIBLE);
 
-            @Override
-            public void onDirectionChange(RockerView.Direction direction) {
-//                log("当前的摇杆方向：" + direction.name());
-                if (!Config.isRosServerConnected) {
-                    return;
-                }
-                speed = (float) Config.speed;
-                switch (direction) {
-                    case DIRECTION_UP:
-                        rockerTwist = new Twist(speed, 0F, 0F, 0F, 0F, 0F);
-                        break;
-                    case DIRECTION_DOWN:
-                        rockerTwist = new Twist(-speed, 0F, 0F, 0F, 0F, 0F);
-                        break;
-                    case DIRECTION_LEFT:
-                        rockerTwist = new Twist(0F, 0F, 0F, 0F, 0F, speed*3F);
-                        break;
-                    case DIRECTION_UP_LEFT:
-                        rockerTwist = new Twist(speed, 0F, 0F, 0F, 0F, speed*3F);
-                        break;
-                    case DIRECTION_RIGHT:
-                        rockerTwist = new Twist(0F, 0F, 0F, 0F, 0F, -speed*3F);
-                        break;
-                    case DIRECTION_UP_RIGHT:
-                        rockerTwist = new Twist(speed, 0F, 0F, 0F, 0F, -speed*3F);
-                        break;
-                    case DIRECTION_DOWN_LEFT:
-                        rockerTwist = new Twist(-speed, 0F, 0F, 0F, 0F, -speed*3F);
-                        break;
-                    case DIRECTION_DOWN_RIGHT:
-                        rockerTwist = new Twist(-speed, 0F, 0F, 0F, 0F, speed*3F);
-                        break;
-                    default:
-                        break;
-                }
-            }
-
-            @Override
-            public void onFinish() {
-                if (!Config.isRosServerConnected) {
-                    return;
-                }
-                rockerTwist = new Twist(0F, 0F, 0F, 0F, 0F, 0F);
-                presenter.publishCommand(rockerTwist);
-                cancelTimerTask();
-            }
-        });
+//        rockerView.setOnDirectionChangeListener(new RockerView.OnDirectionChangeListener() {
+//            @Override
+//            public void onStart() {
+//                if (!Config.isRosServerConnected) {
+//                    Toast.makeText(getContext(), "Ros服务器未连接", Toast.LENGTH_SHORT).show();
+//                } else {
+//                    startTwistPublisher();
+//                }
+//            }
+//
+//            @Override
+//            public void onDirectionChange(RockerView.Direction direction) {
+////                log("当前的摇杆方向：" + direction.name());
+//                if (!Config.isRosServerConnected) {
+//                    return;
+//                }
+//                speed = (float) Config.speed;
+//                switch (direction) {
+//                    case DIRECTION_UP:
+//                        rockerTwist = new Twist(speed, 0F, 0F, 0F, 0F, 0F);
+//                        break;
+//                    case DIRECTION_DOWN:
+//                        rockerTwist = new Twist(-speed, 0F, 0F, 0F, 0F, 0F);
+//                        break;
+//                    case DIRECTION_LEFT:
+//                        rockerTwist = new Twist(0F, 0F, 0F, 0F, 0F, speed*3F);
+//                        break;
+//                    case DIRECTION_UP_LEFT:
+//                        rockerTwist = new Twist(speed, 0F, 0F, 0F, 0F, speed*3F);
+//                        break;
+//                    case DIRECTION_RIGHT:
+//                        rockerTwist = new Twist(0F, 0F, 0F, 0F, 0F, -speed*3F);
+//                        break;
+//                    case DIRECTION_UP_RIGHT:
+//                        rockerTwist = new Twist(speed, 0F, 0F, 0F, 0F, -speed*3F);
+//                        break;
+//                    case DIRECTION_DOWN_LEFT:
+//                        rockerTwist = new Twist(-speed, 0F, 0F, 0F, 0F, -speed*3F);
+//                        break;
+//                    case DIRECTION_DOWN_RIGHT:
+//                        rockerTwist = new Twist(-speed, 0F, 0F, 0F, 0F, speed*3F);
+//                        break;
+//                    default:
+//                        break;
+//                }
+//            }
+//
+//            @Override
+//            public void onFinish() {
+//                if (!Config.isRosServerConnected) {
+//                    return;
+//                }
+//                rockerTwist = new Twist(0F, 0F, 0F, 0F, 0F, 0F);
+//                presenter.publishCommand(rockerTwist);
+//                cancelTimerTask();
+//            }
+//        });
     }
 
 
