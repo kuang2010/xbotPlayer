@@ -406,7 +406,7 @@ public class CustomSeekBar extends View {
                     if (isHorizontal) {
                         float x = event.getX();
                         float distance = x - trackLeft;
-                        progress = (int) (distance / trackLength *100);
+                        progress = Math.round(distance * 100 / trackLength);
                         if (progressChangeListener != null) {
                             progressChangeListener.onProgressChanged(progressToRealValue(progress));
                         }
@@ -414,7 +414,7 @@ public class CustomSeekBar extends View {
                     }else {
                         float y = event.getY();
                         float distance = y - trackTop;
-                        progress = (int) (distance / trackLength * 100);
+                        progress = Math.round(distance * 100 / trackLength);
                         if (progressChangeListener != null) {
                             progressChangeListener.onProgressChanged(progressToRealValue(progress));
                         }

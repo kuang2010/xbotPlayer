@@ -266,10 +266,8 @@ public class FullScreenVideoActivity extends AppCompatActivity implements Camera
 
                 if (position == 0) {
                     addr.append(Config.ROS_SERVER_IP).append(Constant.CAMERA_RGB_RTMP_SUFFIX);
-                    videoIndex = 0;
                 } else {
                     addr.append(Config.ROS_SERVER_IP).append(Constant.CAMERA_DEPTH_RTMP_SUFFIX);
-                    videoIndex = 1;
                 }
                 videoTitle = videoList[videoIndex];
                 //如果选择的播放视频源与正在播放的不相同则开始播放，如果相同，则不播放
@@ -416,6 +414,13 @@ public class FullScreenVideoActivity extends AppCompatActivity implements Camera
                     hideLoading();
                     isPlaying = true;
                     btPlayState.setBackgroundResource(R.drawable.ic_pause);
+                    if (rtmpAddress.endsWith(Constant.CAMERA_RGB_RTMP_SUFFIX)) {
+                        videoIndex = 0;
+                        videoTitle = videoList[0];
+                    }else if (rtmpAddress.endsWith(Constant.CAMERA_DEPTH_RTMP_SUFFIX)) {
+                        videoIndex = 1;
+                        videoTitle = videoList[1];
+                    }
                     title.setText(videoTitle);
 //                    log("ijkMediaPlayer onInfo:" + i + " , " + i1);
                 }
