@@ -24,6 +24,7 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.Switch;
 import android.widget.Toast;
 
@@ -45,11 +46,11 @@ public class RobotStateFragment extends Fragment implements RobotStateContract.V
 
     private PercentCircleView batteryView;
     private CustomSeekBar cloudDegreeSeekBar;
-    private CustomSeekBar liftHeightSeekBar;
     private CustomSeekBar cameraDegreeSeekBar;
     private RobotStateContract.Presenter presenter;
     private BroadcastReceiver receiver;
     private Switch switcher;
+    private Button btReset;
 
     public RobotStateFragment() {
 
@@ -61,9 +62,9 @@ public class RobotStateFragment extends Fragment implements RobotStateContract.V
         View view = inflater.inflate(R.layout.fragment_robot_state, container, false);
         batteryView = (PercentCircleView) view.findViewById(R.id.battery_view);
         cloudDegreeSeekBar = (CustomSeekBar) view.findViewById(R.id.seekbar_cloud_degree);
-        liftHeightSeekBar = (CustomSeekBar) view.findViewById(R.id.seekbar_lift_height);
         cameraDegreeSeekBar = (CustomSeekBar) view.findViewById(R.id.seekbar_camera_degree);
         switcher = (Switch) view.findViewById(R.id.switcher);
+        btReset = (Button) view.findViewById(R.id.bt_reset);
 
         initListeners();
 
@@ -87,24 +88,6 @@ public class RobotStateFragment extends Fragment implements RobotStateContract.V
                     } else {
                         presenter.publishElectricMachineryMsg(false);
                     }
-                } else {
-                    Toast.makeText(getActivity(), "Ros服务器未连接", Toast.LENGTH_SHORT).show();
-                    if (presenter == null) {
-                        Log.e(TAG, "presenter is null");
-                    }
-                }
-            }
-        });
-        liftHeightSeekBar.setOnSeekChangeListener(new CustomSeekBar.OnProgressChangeListener() {
-            @Override
-            public void onProgressChanged(int value) {
-            }
-
-            @Override
-            public void onProgressChangeCompleted(int value) {
-                log("liftHeightSeekBar value change complete :" + value);
-                if (presenter != null && Config.isRosServerConnected) {
-                    presenter.publishLiftMsg(value);
                 } else {
                     Toast.makeText(getActivity(), "Ros服务器未连接", Toast.LENGTH_SHORT).show();
                     if (presenter == null) {
@@ -147,6 +130,18 @@ public class RobotStateFragment extends Fragment implements RobotStateContract.V
                     Toast.makeText(getContext(), "Ros服务器未连接", Toast.LENGTH_SHORT).show();
                 }
 
+            }
+        });
+
+         btReset.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (presenter != null) {
+                    presenter.reset();
+                }
+                switcher.setChecked(true);
+                cameraDegreeSeekBar.setValue(0);
+                cloudDegreeSeekBar.setValue(0);
             }
         });
 
@@ -220,14 +215,12 @@ public class RobotStateFragment extends Fragment implements RobotStateContract.V
         final int percent = state.getPowerPercent();
         final int cloudDegree = state.getCloudDegree();
         final int cameraDegree = state.getCameraDegree();
-        final int heightPercent = state.getHeightPercent();
         getActivity().runOnUiThread(new Runnable() {
             @Override
             public void run() {
                 batteryView.setPercent(percent);
                 cloudDegreeSeekBar.setValue(cloudDegree);
                 cameraDegreeSeekBar.setValue(cameraDegree);
-                liftHeightSeekBar.setValue(heightPercent);
             }
         });
 

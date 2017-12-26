@@ -26,8 +26,8 @@
             android:id="@+id/map_view"
             android:layout_centerHorizontal="true"
             android:layout_marginTop="2dp"
-            android:layout_width="300dp"
-            android:layout_height="300dp" />
+            android:layout_width="400dp"
+            android:layout_height="400dp" />
 
         <LinearLayout
             android:id="@+id/linear_layout"

@@ -91,6 +91,13 @@ public class RobotStatePresenter implements RobotStateContract.Presenter {
         serviceProxy.sendElectricMachineryMsg(activate);
     }
 
+    public void reset() {
+        if (serviceProxy == null) {
+            Log.e(TAG,"serviceProxy is null");
+            return;
+        }
+        serviceProxy.sendCloudCameraMsg(0, 0);
+    }
 
     public void onEvent(RobotState robotState) {
         view.updateRobotState(robotState);
