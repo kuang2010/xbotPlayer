@@ -23,6 +23,10 @@ import android.os.IBinder;
 import android.support.annotation.Nullable;
 import android.util.Log;
 
+import com.jilk.ros.PublishEvent;
+import com.jilk.ros.ROSClient;
+import com.jilk.ros.rosbridge.ROSBridgeClient;
+
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -30,11 +34,8 @@ import org.json.JSONObject;
 import java.util.Timer;
 import java.util.TimerTask;
 
-import cn.iscas.xlab.xbotplayer.entity.PublishEvent;
 import cn.iscas.xlab.xbotplayer.entity.RobotState;
 import cn.iscas.xlab.xbotplayer.entity.Twist;
-import cn.iscas.xlab.xbotplayer.ros.ROSClient;
-import cn.iscas.xlab.xbotplayer.ros.rosbridge.ROSBridgeClient;
 import de.greenrobot.event.EventBus;
 
 /**
